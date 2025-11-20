@@ -1,4 +1,4 @@
-[LichessPerformanceAnalyzerv0.50.html](https://github.com/user-attachments/files/23652494/LichessPerformanceAnalyzerv0.50.html)
+[index.html](https://github.com/user-attachments/files/23652869/index.html)
 <!DOCTYPE html>
 <html lang="en">
 <head>
