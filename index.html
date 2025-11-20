@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lichess Performance Analyzer v0.50</title>
+    <title>Lichess Performance Analyzer v0.55</title>
     <script src="https://cdn.tailwindcss.com/3.4.14"></script>
     
     <script>
@@ -43,7 +43,7 @@
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
 
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Lichess Common Opponent Finder</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Lichess Performance Analyzer</h1>
             <p class="text-gray-600 dark:text-gray-400">Find opponents that 2, 3, or 4 players have all played against.</p>
         </header>
 
@@ -133,10 +133,28 @@
                                 <input type="checkbox" id="unratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
                                 <span>Unrated</span>
                             </label>
-                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="tournamentCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
-                                <span class="text-sm font-semibold text-purple-600 dark:text-purple-400">Tournament Only</span>
+                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer" title="Treats opponents as max 400 points difference (FIDE Rule)">
+                                <input type="checkbox" id="rule400Check" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-green-500 focus:ring-green-500" checked>
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">400-Pt Rule</span>
                             </label>
+                        </div>
+                        <!-- Tournament Toggle Section -->
+                        <div class="mt-2">
+                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tournaments:</span>
+                             <div class="flex flex-wrap gap-4 mt-1">
+                                <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="radio" name="tournamentFilter" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                    <span>All</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="radio" name="tournamentFilter" value="only" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-purple-500 focus:ring-purple-500">
+                                    <span>Only</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="radio" name="tournamentFilter" value="exclude" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-red-500 focus:ring-red-500">
+                                    <span>Exclude</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     
@@ -391,7 +409,8 @@
         const sortOptions = document.getElementById('sortOptions');
         const ratedCheck = document.getElementById('ratedCheck');
         const unratedCheck = document.getElementById('unratedCheck');
-        const tournamentCheck = document.getElementById('tournamentCheck'); 
+        // const tournamentCheck = document.getElementById('tournamentCheck'); // Removed old check
+        const rule400Check = document.getElementById('rule400Check');
         const opponentModeRadios = document.querySelectorAll('input[name="opponentMode"]');
         const strictModeCheck = document.getElementById('strictModeCheck');
         const headerH1 = document.querySelector('header h1');
@@ -420,12 +439,13 @@
         clearCacheBtn.addEventListener('click', handleConfirmClearCache); 
         exportPgnBtn.addEventListener('click', () => exportToPGN());
         sortOptions.addEventListener('change', () => sortAndRenderTable());
-        ratedCheck.addEventListener('change', reAnalyzeAndDisplay);
-        unratedCheck.addEventListener('change', reAnalyzeAndDisplay);
-        tournamentCheck.addEventListener('change', reAnalyzeAndDisplay); 
-        startDateInput.addEventListener('change', reAnalyzeAndDisplay); 
-        endDateInput.addEventListener('change', reAnalyzeAndDisplay); 
-        strictModeCheck.addEventListener('change', reAnalyzeAndDisplay);
+        ratedCheck.addEventListener('change', () => reAnalyzeAndDisplay(false));
+        unratedCheck.addEventListener('change', () => reAnalyzeAndDisplay(false));
+        // tournamentCheck.addEventListener('change', reAnalyzeAndDisplay); 
+        rule400Check.addEventListener('change', () => reAnalyzeAndDisplay(false));
+        startDateInput.addEventListener('change', () => reAnalyzeAndDisplay(false)); 
+        endDateInput.addEventListener('change', () => reAnalyzeAndDisplay(false)); 
+        strictModeCheck.addEventListener('change', () => reAnalyzeAndDisplay(false));
 
         // Custom Max Games Logic
         maxGamesSelect.addEventListener('change', () => {
@@ -434,17 +454,13 @@
                 customMaxGamesInput.focus();
             } else {
                 customMaxGamesInput.classList.add('hidden');
-                if (activePlayerNames.length > 0) {
-                    handleFetchGames();
-                }
+                // Removed auto fetch
             }
         });
         
         // Game Type listener
         gameTypeSelect.addEventListener('change', () => {
-            if (activePlayerNames.length > 0) {
-                handleFetchGames();
-            }
+            // Removed auto fetch
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -471,8 +487,14 @@
                         } else if (radio.value === 'range') {
                              dateRangeInputs.classList.remove('hidden');
                         }
-                        reAnalyzeAndDisplay();
+                        reAnalyzeAndDisplay(false);
                     });
+                });
+                
+                // New Tournament Filter Radios
+                const tournamentRadios = document.querySelectorAll('input[name="tournamentFilter"]');
+                tournamentRadios.forEach(radio => {
+                    radio.addEventListener('change', () => reAnalyzeAndDisplay(false));
                 });
                 
                 let debounceTimer;
@@ -482,7 +504,7 @@
                         customRadio.dispatchEvent(new Event('change')); 
                     } else {
                         clearTimeout(debounceTimer);
-                        debounceTimer = setTimeout(reAnalyzeAndDisplay, 400);
+                        debounceTimer = setTimeout(() => reAnalyzeAndDisplay(false), 400);
                     }
                     customDaysInput.disabled = false;
                 });
@@ -516,7 +538,7 @@
                                 strictModeCheck.disabled = false;
                             }
                         }
-                        reAnalyzeAndDisplay();
+                        reAnalyzeAndDisplay(false);
                     });
                 });
 
@@ -877,7 +899,7 @@
                 activePlayerNames = successfulNames;
                 
                 if (currentPlayersData.length > 0) {
-                    reAnalyzeAndDisplay();
+                    reAnalyzeAndDisplay(true); // Pass true to allow scrolling
                 }
 
             } catch (error) {
@@ -891,15 +913,18 @@
             }
         }
         
-        function reAnalyzeAndDisplay() {
+        function reAnalyzeAndDisplay(shouldScroll = false) {
             if (currentPlayersData.length === 0) return;
             
             const isSinglePlayerMode = currentPlayersData.length === 1 && currentPlayersData[0].name.toLowerCase() === playerInputs[0].value.trim().toLowerCase();
 
             const rated = ratedCheck.checked;
             const unrated = unratedCheck.checked;
-            const tournamentOnly = tournamentCheck.checked; 
+            
+            const tournamentFilterValue = document.querySelector('input[name="tournamentFilter"]:checked').value;
+
             const strictMode = strictModeCheck.checked;
+            const use400Rule = rule400Check.checked;
             
             const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
             
@@ -948,9 +973,9 @@
                 return;
             }
             
-            const { common, totals, headToHeadData } = findCommonOpponents(currentPlayersData, rated, unrated, daysFilter, opponentModeValue, tournamentOnly, isDateRange, startTs, endTs, strictMode);
+            const { common, totals, headToHeadData } = findCommonOpponents(currentPlayersData, rated, unrated, daysFilter, opponentModeValue, tournamentFilterValue, isDateRange, startTs, endTs, strictMode, use400Rule);
             
-            displayResults(activePlayerNames, common, totals, isSinglePlayerMode, headToHeadData, {isDateRange, startTs, daysFilter, dateFilterRadioValue});
+            displayResults(activePlayerNames, common, totals, isSinglePlayerMode, headToHeadData, {isDateRange, startTs, daysFilter, dateFilterRadioValue, use400Rule, tournamentFilterValue}, shouldScroll);
         }
 
         async function getPlayerData(username, perfType, statusElement, forceUpdate = false, maxGames = '300') {
@@ -1298,7 +1323,7 @@
             opponentsMap[opponentLower].games.push(gameData);
         }
         
-        function findCommonOpponents(playersData, rated, unrated, daysFilter, opponentMode = 'common', tournamentOnly = false, isDateRange = false, startTs = 0, endTs = 0, strictMode = false) {
+        function findCommonOpponents(playersData, rated, unrated, daysFilter, opponentMode = 'common', tournamentFilter = 'all', isDateRange = false, startTs = 0, endTs = 0, strictMode = false, use400Rule = false) {
             const isSinglePlayerMode = playersData.length === 1 || !playersData[1];
             
             const totals = playersData.map(p => ({ wins: 0, losses: 0, draws: 0, games: 0, totalOppRating: 0 }));
@@ -1316,15 +1341,16 @@
             // MODIFIED: getFilteredRecord now processes H2H specific logic
             // For normal games: calculate W/L/D based on stored 'result' (relative to main player)
             // For H2H merged games: calculate W/L/D based on 'white'/'black' and 'score' absolute result
-            const getFilteredRecord = (allGames, targetPlayerNameForH2H = null) => {
+            const getFilteredRecord = (allGames, targetPlayerNameForH2H = null, mainPlayerRating = null, use400Rule = false) => {
                 const record = { w: 0, l: 0, d: 0, totalOppRating: 0, gameCount: 0, lastPlayed: 0 };
                 if (!allGames) return record;
                 
                 const targetLower = targetPlayerNameForH2H ? targetPlayerNameForH2H.toLowerCase() : null;
 
                 for (const game of allGames) {
-                    // Tournament Filter
-                    if (tournamentOnly && !game.tournament) continue;
+                    // Tournament Filter Logic (All / Only / Exclude)
+                    if (tournamentFilter === 'only' && !game.tournament) continue;
+                    if (tournamentFilter === 'exclude' && game.tournament) continue;
 
                     // Date Filter
                     if (isDateRange) {
@@ -1362,7 +1388,22 @@
                         else if (isLoss) record.l++;
                         else if (isDraw) record.d++;
                         
-                        record.totalOppRating += (game.oppRating || 1500);
+                        let oppR = (game.oppRating || 1500);
+                        
+                        // APPLY 400-POINT RULE IF ENABLED AND RATING IS AVAILABLE
+                        if (use400Rule && mainPlayerRating) {
+                             const diff = mainPlayerRating - oppR;
+                             // If opponent is too weak (>400 pts lower), treat as (Rating - 400)
+                             if (diff > 400) {
+                                 oppR = mainPlayerRating - 400;
+                             }
+                             // If opponent is too strong (>400 pts higher), treat as (Rating + 400)
+                             else if (diff < -400) {
+                                 oppR = mainPlayerRating + 400;
+                             }
+                        }
+
+                        record.totalOppRating += oppR;
                         record.gameCount++;
                         if (game.date > record.lastPlayed) record.lastPlayed = game.date;
                     }
@@ -1372,9 +1413,10 @@
             
             if (isSinglePlayerMode) {
                 const firstPlayerOpponents = Object.keys(playersData[0].data);
+                const p1Rating = playersData[0].rating;
                 for (const opponentLower of firstPlayerOpponents) {
                     const allOpponentData = playersData[0].data[opponentLower];
-                    const combinedRecord = getFilteredRecord(allOpponentData.games);
+                    const combinedRecord = getFilteredRecord(allOpponentData.games, null, p1Rating, use400Rule);
                     
                     if (combinedRecord.gameCount > 0) {
                         const opponentData = {
@@ -1429,8 +1471,7 @@
                         
                         if (mergedGames.length > 0) {
                             // Calculate Record relative to OTHER PLAYER (Player J)
-                            // Because the column headers are "Player J's Record"
-                            const filteredRecord = getFilteredRecord(mergedGames, otherPlayer.name);
+                            const filteredRecord = getFilteredRecord(mergedGames, otherPlayer.name, otherPlayer.rating, use400Rule);
                             
                             if (filteredRecord.gameCount > 0) {
                                 h2hOpponentData.records[j] = { w: filteredRecord.w, l: filteredRecord.l, d: filteredRecord.d, score: filteredRecord.w - filteredRecord.l };
@@ -1445,11 +1486,12 @@
                 
                 if (opponentMode === 'common') {
                     const targetData = playersData[0]; 
+                    const targetRating = targetData.rating;
                     const targetOpponents = Object.keys(targetData.data);
 
                     for (const opponentLower of targetOpponents) {
                         const targetOpponentData = targetData.data[opponentLower];
-                        const targetRecord = getFilteredRecord(targetOpponentData.games);
+                        const targetRecord = getFilteredRecord(targetOpponentData.games, null, targetRating, use400Rule);
 
                         if (targetRecord.gameCount === 0) continue;
 
@@ -1466,7 +1508,7 @@
                             let anchorRecord = { w: 0, l: 0, d: 0, totalOppRating: 0, gameCount: 0, lastPlayed: 0 };
 
                             if (anchorOpponentData) {
-                                anchorRecord = getFilteredRecord(anchorOpponentData.games);
+                                anchorRecord = getFilteredRecord(anchorOpponentData.games, null, anchorPlayer.rating, use400Rule);
                             }
                             individualRecords[i] = anchorRecord;
 
@@ -1529,7 +1571,7 @@
                     playersData.forEach((player, playerIndex) => {
                         Object.keys(player.data).forEach(opponentLower => {
                             const opponentData = player.data[opponentLower];
-                            const filteredRecord = getFilteredRecord(opponentData.games);
+                            const filteredRecord = getFilteredRecord(opponentData.games, null, player.rating, use400Rule);
 
                             if (filteredRecord.gameCount > 0) {
                                 if (!allOpponents.has(opponentLower)) {
@@ -1607,7 +1649,7 @@
             };
         }
 
-        function displayResults(playerNames, commonOpponents, totals, isSinglePlayerMode = false, headToHeadData = [], filterContext = {}) {
+        function displayResults(playerNames, commonOpponents, totals, isSinglePlayerMode = false, headToHeadData = [], filterContext = {}, shouldScroll = false) {
             currentCommonOpponents = commonOpponents;
             currentHeadToHeadData = headToHeadData || [];
 
@@ -1633,7 +1675,7 @@
                 statusElements.forEach(el => el.textContent = ''); 
             }
             
-            const { isDateRange, startTs, daysFilter, dateFilterRadioValue } = filterContext;
+            const { isDateRange, startTs, daysFilter, dateFilterRadioValue, use400Rule, tournamentFilterValue } = filterContext;
             const now = Date.now();
             let requestedOldest = 0;
             
@@ -1701,14 +1743,20 @@
             filterParts.push(shortDateText);
             
             if (unratedCheck.checked && ratedCheck.checked) {
-                 // If both are checked, show both or simplify? The user example showed commas.
                  filterParts.push('rated');
                  filterParts.push('unrated');
             } else {
                 if (ratedCheck.checked) filterParts.push('rated'); 
                 if (unratedCheck.checked) filterParts.push('unrated'); 
             }
-            if (tournamentCheck.checked) filterParts.push('tournament only'); 
+
+            if (tournamentFilterValue === 'only') {
+                filterParts.push('tournament only');
+            } else if (tournamentFilterValue === 'exclude') {
+                filterParts.push('no tournaments');
+            }
+
+            if (use400Rule) filterParts.push('400-Pt Rule');
 
             const filterSummaryText = filterParts.join(', '); 
             
@@ -1817,10 +1865,24 @@
                         if (currentPerfData.perf === 'N/A') {
                             eloHTML += `N/A (No Games) | Rating: <strong class="text-gray-900 dark:text-white">${currentRating || 'N/A'}</strong><br>`;
                         } else {
-                            const currentDp = currentPerfData.dp;
-                            const relativeDp = currentDp - baseDp;
-                            const relativePerf = Math.round(basePlayerRating + relativeDp);
-                            const relDpStr = relativeDp >= 0 ? `+${Math.round(relativeDp)}` : Math.round(relativeDp);
+                            // --- MODIFIED RELATIVE PERF LOGIC START ---
+                            // Calculate Relative Performance using Calculated Perf Difference
+                            // This ensures 400-Point Rule adjustments to "Avg Opp Rating" (Ra) are included in the diff.
+                            
+                            // Calculate raw unrounded perfs for precision
+                            const currentRawPerf = (totals[0].totalOppRating / totals[0].games) + currentPerfData.dp;
+                            const anchorRawPerf = (totals.combinedAnchors.totalOppRating / totals.combinedAnchors.games) + combinedAnchorPerfData.dp;
+                            
+                            // Difference in Performance
+                            const perfDiff = currentRawPerf - anchorRawPerf;
+                            
+                            // Apply Difference to Anchor's Actual Rating Baseline
+                            const relativePerf = Math.round(basePlayerRating + perfDiff);
+                            
+                            // For display score (+/-), show the perf difference
+                            const relDpStr = perfDiff >= 0 ? `+${Math.round(perfDiff)}` : Math.round(perfDiff);
+                            // --- MODIFIED RELATIVE PERF LOGIC END ---
+                            
                             let diffStr = '';
                             let relPerfClass = 'text-gray-900 dark:text-white';
                             if (currentRating) {
@@ -1862,7 +1924,10 @@
             sortOptions.value = 'last-played-desc';
             sortAndRenderTable(); 
             resultsContainer.classList.remove('hidden');
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            if (shouldScroll) {
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function sortAndRenderTable() {
@@ -2018,8 +2083,10 @@
             
             const rated = ratedCheck.checked;
             const unrated = unratedCheck.checked;
-            const tournamentOnly = tournamentCheck.checked;
+            // const tournamentOnly = tournamentCheck.checked;
             const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
+            const tournamentFilterValue = document.querySelector('input[name="tournamentFilter"]:checked').value;
+
             let startTs = 0, endTs = 0;
             let dateCutoff = 0;
             let isDateRange = false;
@@ -2059,7 +2126,9 @@
                     oppData.games.forEach(game => {
                         if (addedGameIds.has(game.id)) return;
                         
-                        if (tournamentOnly && !game.tournament) return;
+                        // if (tournamentOnly && !game.tournament) return;
+                        if (tournamentFilterValue === 'only' && !game.tournament) return;
+                        if (tournamentFilterValue === 'exclude' && game.tournament) return;
                         
                         if (isDateRange) {
                             if (game.date < startTs || game.date > endTs) return;
@@ -2087,7 +2156,9 @@
             const oppNameLower = opponentName.toLowerCase();
             const rated = ratedCheck.checked;
             const unrated = unratedCheck.checked;
-            const tournamentOnly = tournamentCheck.checked;
+            // const tournamentOnly = tournamentCheck.checked;
+            const tournamentFilterValue = document.querySelector('input[name="tournamentFilter"]:checked').value;
+            
             const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
             let startTs = 0, endTs = 0;
             let dateCutoff = 0;
@@ -2136,7 +2207,10 @@
 
             function processGame(game) {
                  if (addedGameIds.has(game.id)) return;
-                 if (tournamentOnly && !game.tournament) return;
+                 // if (tournamentOnly && !game.tournament) return;
+                 if (tournamentFilterValue === 'only' && !game.tournament) return;
+                 if (tournamentFilterValue === 'exclude' && game.tournament) return;
+                 
                  if (isDateRange) {
                      if (game.date < startTs || game.date > endTs) return;
                  } else if (dateCutoff > 0) {
@@ -2230,5 +2304,4 @@
         }
     </script>
 </body>
-
 </html>
