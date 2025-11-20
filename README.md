@@ -1,0 +1,2234 @@
+[LichessPerformanceAnalyzerv0.50.html](https://github.com/user-attachments/files/23652494/LichessPerformanceAnalyzerv0.50.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lichess Opponent Finder v0.50</title>
+    <script src="https://cdn.tailwindcss.com/3.4.14"></script>
+    
+    <script>
+      // Force dark mode no matter what the OS says
+      document.documentElement.classList.add('dark');
+    </script>
+    
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f3f4f6; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        html.dark ::-webkit-scrollbar-track { background: #1f2937; }
+        html.dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+        html.dark ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        input[type="text"]::-ms-clear, input[type="text"]::-ms-reveal { display: none; width : 0; height: 0; }
+        input[type="text"]::-webkit-search-decoration,
+        input[type="text"]::-webkit-search-cancel-button,
+        input[type="text"]::-webkit-search-results-button,
+        input[type="text"]::-webkit-search-results-decoration { display: none; }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        input[type="date"] { color-scheme: dark; }
+        
+        /* Sticky Header Style */
+        thead th { position: sticky; top: 0; z-index: 10; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-200 font-sans antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Lichess Common Opponent Finder</h1>
+            <p class="text-gray-600 dark:text-gray-400">Find opponents that 2, 3, or 4 players have all played against.</p>
+        </header>
+
+        <div id="form-container" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl mb-8">
+            <!-- Player Inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="player1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 1 (Main)</label>
+                    <div class="relative">
+                        <input type="text" id="player1" list="player1-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., DrNykterstein">
+                        <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player1" aria-label="Clear player 1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <datalist id="player1-list"></datalist>
+                </div>
+                <div>
+                    <label for="player2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 2</label>
+                    <div class="relative">
+                        <input type="text" id="player2" list="player2-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Alireza2003">
+                        <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player2" aria-label="Clear player 2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <datalist id="player2-list"></datalist>
+                </div>
+                 <div>
+                    <label for="player3" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 3</label>
+                    <div class="relative">
+                        <input type="text" id="player3" list="player3-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Agadmator">
+                        <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player3" aria-label="Clear player 3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <datalist id="player3-list"></datalist>
+                </div>
+                 <div>
+                    <label for="player4" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 4</label>
+                    <div class="relative">
+                        <input type="text" id="player4" list="player4-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Chess-Network">
+                        <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player4" aria-label="Clear player 4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <datalist id="player4-list"></datalist>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="gameType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Game Type</label>
+                    <select id="gameType" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="blitz">Blitz</option>
+                        <option value="bullet">Bullet</option>
+                        <option value="rapid">Rapid</option>
+                        <option value="classical">Classical</option>
+                        <option value="correspondence">Correspondence</option>
+                        <option value="chess960">Chess960</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="maxGames" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Games to Fetch</label>
+                    <div class="flex gap-2">
+                        <select id="maxGames" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="300" selected>300</option>
+                            <option value="1000">1000</option>
+                            <option value="3000">3000</option>
+                            <option value="5000">5000</option>
+                            <option value="10000">10000</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <input type="number" id="customMaxGames" class="hidden w-24 bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Qty" min="1" max="10000" value="300">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Game Filters</label>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="ratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
+                                <span>Rated</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="unratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                <span>Unrated</span>
+                            </label>
+                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="tournamentCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span class="text-sm font-semibold text-purple-600 dark:text-purple-400">Tournament Only</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Range</label>
+                        <div id="date-filter-group" class="flex flex-wrap gap-x-4 gap-y-2">
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="dateFilter" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span>All</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="dateFilter" value="90" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                <span>Last 90d</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="dateFilter" value="30" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span>Last 30d</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="dateFilter" value="custom" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span>Days:</span>
+                                <input type="text" id="customDays" class="w-12 bg-gray-100 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" placeholder="#" value="7" disabled>
+                            </label>
+                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="dateFilter" value="range" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span>Range</span>
+                            </label>
+                        </div>
+                        
+                        <div id="date-range-inputs" class="hidden mt-2 flex items-center space-x-2">
+                            <input type="date" id="startDate" class="bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <span class="text-gray-500 dark:text-gray-400">-</span>
+                            <input type="date" id="endDate" class="bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opponent Mode</label>
+                    <div class="flex flex-col gap-2">
+                        <div id="opponent-mode-group" class="flex space-x-4">
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="opponentMode" value="common" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span title="Opponents played by Player 1 AND (Player 2 OR Player 3...)">Common (P1 + Any)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="radio" name="opponentMode" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
+                                <span title="Opponents played by at least 2 of any selected players">All games</span>
+                            </label>
+                        </div>
+                        <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer ml-1">
+                            <input type="checkbox" id="strictModeCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span>Played by all players</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-2 mt-4">
+                <button id="findBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                    Fetch Games
+                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button id="deletePlayersBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                        Delete Player(s)
+                    </button>
+                    <button id="clearCacheBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                        Clear All Cache
+                    </button>
+                </div>
+            </div>
+            <p id="cache-status" class="text-xs text-gray-600 dark:text-gray-500 text-center mt-2 h-3"></p>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 mb-6">
+            <div class="flex justify-center">
+                 <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'W7W71OPIKZ');kofiwidget2.draw();</script>
+            </div>
+             <a href='https://ko-fi.com/W7W71OPIKZ' target='_blank' class="hover:opacity-90 transition-opacity">
+                <img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' />
+            </a>
+        </div>
+
+        <div class="mb-6">
+            <p id="status-p1" class="text-gray-600 dark:text-gray-400 h-5"></p>
+            <p id="status-p2" class="text-gray-600 dark:text-gray-400 h-5"></p>
+            <p id="status-p3" class="text-gray-600 dark:text-gray-400 h-5"></p>
+            <p id="status-p4" class="text-gray-600 dark:text-gray-400 h-5"></p>
+        </div>
+
+        <div id="results-container" class="hidden">
+            <div id="totals" class="text-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Results Summary</h2>
+                <p id="warning-text" class="text-amber-600 dark:text-amber-400 font-bold text-sm mt-2 hidden"></p>
+                <p id="totals-text" class="text-gray-700 dark:text-gray-300 mt-2 leading-relaxed"></p>
+            </div>
+
+            <div id="sorting-controls" class="mb-4">
+                <label for="sortOptions" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort by:</label>
+                <select id="sortOptions" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </select>
+            </div>
+
+            <div class="mb-4 text-right space-x-2">
+                <button id="exportPgnBtn" class="text-sm bg-gray-200 hover:bg-gray-300 text-green-600 border border-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-green-400 dark:border-gray-600 font-medium py-1 px-3 rounded transition duration-200 ease-in-out inline-flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Export PGN (Global)
+                </button>
+            </div>
+
+            <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg max-h-[80vh] overflow-y-auto">
+                <table id="results-table" class="min-w-full text-left relative">
+                    <thead id="results-head" class="bg-gray-100 dark:bg-gray-700">
+                        </thead>
+                    <tbody id="results-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- IndexedDB Helper Module ---
+        const dbHelper = (function() {
+            const DB_NAME = 'LichessOpponentCache';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'playerGames';
+            let db = null;
+
+            function initDB() {
+                return new Promise((resolve, reject) => {
+                    if (db) return resolve(db);
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onupgradeneeded = (event) => {
+                        const dbInstance = event.target.result;
+                        if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
+                            dbInstance.createObjectStore(STORE_NAME);
+                        }
+                    };
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        resolve(db);
+                    };
+                    request.onerror = (event) => {
+                        console.error('IndexedDB error:', event.target.error);
+                        reject('Error opening IndexedDB.');
+                    };
+                });
+            }
+
+            async function getStore(mode = 'readonly') {
+                if (!db) await initDB();
+                const transaction = db.transaction(STORE_NAME, mode);
+                return transaction.objectStore(STORE_NAME);
+            }
+
+            async function savePlayerData(key, data) {
+                const store = await getStore('readwrite');
+                return new Promise((resolve, reject) => {
+                    const request = store.put(data, key);
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => {
+                        console.error('Failed to save data:', event.target.error);
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            async function getPlayerData(key) {
+                const store = await getStore('readonly');
+                return new Promise((resolve, reject) => {
+                    const request = store.get(key);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => {
+                        console.error('Failed to get data:', event.target.error);
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            async function deletePlayerData(key) {
+                const store = await getStore('readwrite');
+                return new Promise((resolve, reject) => {
+                    const request = store.delete(key);
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async function clearDB() {
+                const store = await getStore('readwrite');
+                return new Promise((resolve, reject) => {
+                    const request = store.clear();
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async function getAllPlayerKeys() {
+                const store = await getStore('readonly');
+                return new Promise((resolve, reject) => {
+                    const request = store.getAllKeys();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            return { initDB, savePlayerData, getPlayerData, deletePlayerData, clearDB, getAllPlayerKeys };
+        })();
+    </script>
+
+    <script>
+        // --- Main Application Logic ---
+
+        // DOM Elements
+        const findBtn = document.getElementById('findBtn');
+        const deletePlayersBtn = document.getElementById('deletePlayersBtn');
+        const clearCacheBtn = document.getElementById('clearCacheBtn');
+        const exportPgnBtn = document.getElementById('exportPgnBtn');
+        const playerInputs = [
+            document.getElementById('player1'),
+            document.getElementById('player2'),
+            document.getElementById('player3'),
+            document.getElementById('player4')
+        ];
+        const player2DefaultPlaceholder = playerInputs[1].placeholder;
+        
+        const playerDatalists = [
+            document.getElementById('player1-list'),
+            document.getElementById('player2-list'),
+            document.getElementById('player3-list'),
+            document.getElementById('player4-list')
+        ];
+        const statusElements = [
+            document.getElementById('status-p1'),
+            document.getElementById('status-p2'),
+            document.getElementById('status-p3'),
+            document.getElementById('status-p4')
+        ];
+        const gameTypeSelect = document.getElementById('gameType');
+        const maxGamesSelect = document.getElementById('maxGames');
+        const customMaxGamesInput = document.getElementById('customMaxGames');
+        const resultsContainer = document.getElementById('results-container');
+        const totalsText = document.getElementById('totals-text');
+        const warningText = document.getElementById('warning-text');
+        const resultsHead = document.getElementById('results-head');
+        const resultsBody = document.getElementById('results-body');
+        const cacheStatus = document.getElementById('cache-status');
+        const sortOptions = document.getElementById('sortOptions');
+        const ratedCheck = document.getElementById('ratedCheck');
+        const unratedCheck = document.getElementById('unratedCheck');
+        const tournamentCheck = document.getElementById('tournamentCheck'); 
+        const opponentModeRadios = document.querySelectorAll('input[name="opponentMode"]');
+        const strictModeCheck = document.getElementById('strictModeCheck');
+        const headerH1 = document.querySelector('header h1');
+        const headerP = document.querySelector('header p');
+        const customDaysInput = document.getElementById('customDays');
+        const dateRangeInputs = document.getElementById('date-range-inputs'); 
+        const startDateInput = document.getElementById('startDate'); 
+        const endDateInput = document.getElementById('endDate'); 
+
+        // ICONS
+        const ICON_LOADING = `<svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        const ICON_SUCCESS = `<svg class="w-4 h-4 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+        const ICON_ERROR = `<svg class="w-4 h-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+        const ICON_ORIGINAL = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>`;
+        const ICON_H2H = `<svg class="w-4 h-4 mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-1.657-1.343-3-3-3s-3 1.343-3 3v2m6 0v-2a3 3 0 00-3-3m-3 3H7m4 0v-2c0-1.657-1.343-3-3-3S8 11.343 8 13v2m0 0H3v-2a3 3 0 015.356-1.857M5 20H3v-2a3 3 0 013-3m0 0a3 3 0 013 3v2m0 0v-2a3 3 0 013-3m0 0a3 3 0 013 3v2m0 0v-2c0-1.657 1.343-3 3-3s3 1.343 3 3v2M9 10a3 3 0 11-6 0 3 3 0 016 0zm12 0a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
+
+        let currentCommonOpponents = [];
+        let currentHeadToHeadData = [];
+        let activePlayerNames = [];
+        let currentPlayersData = [];
+        let wasSinglePlayerMode = false; 
+
+        // Event Listeners
+        findBtn.addEventListener('click', handleFetchGames);
+        deletePlayersBtn.addEventListener('click', handleConfirmDeletePlayers);
+        clearCacheBtn.addEventListener('click', handleConfirmClearCache); 
+        exportPgnBtn.addEventListener('click', () => exportToPGN());
+        sortOptions.addEventListener('change', () => sortAndRenderTable());
+        ratedCheck.addEventListener('change', reAnalyzeAndDisplay);
+        unratedCheck.addEventListener('change', reAnalyzeAndDisplay);
+        tournamentCheck.addEventListener('change', reAnalyzeAndDisplay); 
+        startDateInput.addEventListener('change', reAnalyzeAndDisplay); 
+        endDateInput.addEventListener('change', reAnalyzeAndDisplay); 
+        strictModeCheck.addEventListener('change', reAnalyzeAndDisplay);
+
+        // Custom Max Games Logic
+        maxGamesSelect.addEventListener('change', () => {
+            if (maxGamesSelect.value === 'custom') {
+                customMaxGamesInput.classList.remove('hidden');
+                customMaxGamesInput.focus();
+            } else {
+                customMaxGamesInput.classList.add('hidden');
+                if (activePlayerNames.length > 0) {
+                    handleFetchGames();
+                }
+            }
+        });
+        
+        // Game Type listener
+        gameTypeSelect.addEventListener('change', () => {
+            if (activePlayerNames.length > 0) {
+                handleFetchGames();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await dbHelper.initDB();
+                console.log("Database initialized.");
+                await populateCachedPlayersDatalist();
+                
+                const dateFilterRadios = document.querySelectorAll('input[name="dateFilter"]');
+                const customRadio = document.querySelector('input[name="dateFilter"][value="custom"]');
+                const rangeRadio = document.querySelector('input[name="dateFilter"][value="range"]');
+                
+                dateFilterRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        // Reset states
+                        customDaysInput.disabled = true;
+                        dateRangeInputs.classList.add('hidden');
+                        
+                        if (radio.value === 'custom') {
+                            customDaysInput.disabled = false;
+                            if (document.activeElement !== customDaysInput) {
+                                customDaysInput.focus();
+                            }
+                        } else if (radio.value === 'range') {
+                             dateRangeInputs.classList.remove('hidden');
+                        }
+                        reAnalyzeAndDisplay();
+                    });
+                });
+                
+                let debounceTimer;
+                customDaysInput.addEventListener('input', () => {
+                    if (!customRadio.checked) {
+                        customRadio.checked = true;
+                        customRadio.dispatchEvent(new Event('change')); 
+                    } else {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(reAnalyzeAndDisplay, 400);
+                    }
+                    customDaysInput.disabled = false;
+                });
+
+                customDaysInput.addEventListener('focus', () => {
+                    if (!customRadio.checked) {
+                        customRadio.checked = true;
+                        customRadio.dispatchEvent(new Event('change'));
+                    }
+                    customDaysInput.disabled = false;
+                });
+                
+                // Date range inputs auto-select range radio
+                [startDateInput, endDateInput].forEach(input => {
+                    input.addEventListener('focus', () => {
+                         if (!rangeRadio.checked) {
+                            rangeRadio.checked = true;
+                            rangeRadio.dispatchEvent(new Event('change'));
+                         }
+                    });
+                });
+                
+                opponentModeRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                         // Updated Logic: Automatically disable/enable Strict Mode Checkbox
+                        if (!wasSinglePlayerMode) {
+                             if (radio.value === 'all') {
+                                strictModeCheck.disabled = true;
+                                strictModeCheck.checked = false;
+                            } else {
+                                strictModeCheck.disabled = false;
+                            }
+                        }
+                        reAnalyzeAndDisplay();
+                    });
+                });
+
+                document.querySelectorAll('.clear-input-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const targetInputId = e.currentTarget.dataset.target;
+                        const input = document.getElementById(targetInputId);
+                        if (input) {
+                            input.value = '';
+                            input.focus();
+                            e.currentTarget.classList.add('hidden');
+                        }
+                        checkSinglePlayerMode();
+                    });
+                });
+
+                playerInputs.forEach(input => {
+                    const clearBtn = document.querySelector(`.clear-input-btn[data-target="${input.id}"]`);
+                    
+                    if (clearBtn) {
+                        input.addEventListener('input', () => {
+                            if (input.value.length > 0) {
+                                clearBtn.classList.remove('hidden');
+                            } else {
+                                clearBtn.classList.add('hidden');
+                            }
+                            checkSinglePlayerMode();
+                        });
+
+                        if (input.value.length > 0) {
+                            clearBtn.classList.remove('hidden');
+                        }
+                    }
+                });
+                
+                // Initialize mode state
+                wasSinglePlayerMode = true; // Assume start is single
+                checkSinglePlayerMode(true); // Force initial check
+
+            } catch (e) {
+                console.error("Failed to initialize database", e);
+                showModal("Could not initialize the local database. Caching will not work.");
+            }
+        });
+
+        function checkSinglePlayerMode(force = false) {
+            const p1Name = playerInputs[0].value.trim();
+            const allOtherPlayersEmpty = playerInputs.slice(1).every(input => input.value.trim() === '');
+            const isSinglePlayerMode = p1Name !== '' && allOtherPlayersEmpty;
+            
+            // Only update UI if state CHANGED or forced
+            if (!force && isSinglePlayerMode === wasSinglePlayerMode) {
+                return;
+            }
+            wasSinglePlayerMode = isSinglePlayerMode;
+            
+            const opponentModeCommon = document.querySelector('input[name="opponentMode"][value="common"]');
+            const opponentModeAll = document.querySelector('input[name="opponentMode"][value="all"]');
+
+            if (isSinglePlayerMode) {
+                // Only reset filters if transitioning to Single Player
+                ratedCheck.checked = true;
+                ratedCheck.disabled = false; 
+                unratedCheck.checked = true; 
+                
+                findBtn.textContent = 'Fetch Games';
+                headerH1.textContent = 'Lichess Performance Analyzer';
+                headerP.textContent = 'Analyze your performance vs. your rated Elo.';
+                playerInputs[1].placeholder = "Add Player 2 to analyze...";
+                
+                if (opponentModeCommon) opponentModeCommon.disabled = true;
+                if (opponentModeAll) opponentModeAll.disabled = true;
+                strictModeCheck.disabled = true;
+                
+            } else {
+                // Only reset filters if transitioning to Multiplayer
+                ratedCheck.disabled = false;
+                ratedCheck.checked = true; 
+
+                findBtn.textContent = 'Fetch Games';
+                headerH1.textContent = 'Lichess Performance Analyzer';
+                headerP.textContent = 'Analyze Player 1\'s performance or against opponents also played by P2, P3, or P4.';
+                playerInputs[1].placeholder = player2DefaultPlaceholder;
+                
+                if (opponentModeCommon) opponentModeCommon.disabled = false;
+                if (opponentModeAll) opponentModeAll.disabled = false;
+                
+                // Check current mode to set strict mode state
+                const currentMode = document.querySelector('input[name="opponentMode"]:checked').value;
+                if (currentMode === 'all') {
+                    strictModeCheck.disabled = true;
+                    strictModeCheck.checked = false;
+                } else {
+                    strictModeCheck.disabled = false;
+                }
+            }
+        }
+
+        async function populateCachedPlayersDatalist() {
+            const cachedPlayers = new Set();
+            try {
+                const keys = await dbHelper.getAllPlayerKeys();
+                for (const key of keys) {
+                    if (key && key.startsWith('lichess_games_')) {
+                        const keyPrefix = 'lichess_games_';
+                        const keySuffixIndex = key.lastIndexOf('_');
+                        if (keySuffixIndex > keyPrefix.length) {
+                            const playerName = key.substring(keyPrefix.length, keySuffixIndex);
+                            cachedPlayers.add(playerName);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Could not populate player list from IndexedDB", error);
+            }
+
+            playerDatalists.forEach(list => list.innerHTML = '');
+            const sortedPlayers = Array.from(cachedPlayers).sort((a, b) => a.localeCompare(b));
+
+            sortedPlayers.forEach(player => {
+                const displayName = player.charAt(0).toUpperCase() + player.slice(1);
+                playerDatalists.forEach(list => {
+                    const option = document.createElement('option');
+                    option.value = displayName;
+                    list.appendChild(option);
+                });
+            });
+        }
+
+        function handleConfirmClearCache() {
+            showConfirmationModal(
+                'Are you sure you want to delete all cached player data? This action cannot be undone.',
+                clearCache, 
+                'Yes, Delete All',
+                'bg-red-600 hover:bg-red-700'
+            );
+        }
+
+        async function clearCache() {
+            try {
+                await dbHelper.clearDB();
+                cacheStatus.textContent = `Cleared all cached player records.`;
+                setTimeout(() => cacheStatus.textContent = '', 3000);
+                await populateCachedPlayersDatalist();
+            } catch (error) {
+                console.error("Failed to clear IndexedDB", error);
+                cacheStatus.textContent = `Error clearing cache. See console.`;
+                setTimeout(() => cacheStatus.textContent = '', 3000);
+            }
+        }
+
+        function handleConfirmDeletePlayers() {
+            const playerNamesToDelete = playerInputs.map(input => input.value.trim()).filter(Boolean);
+            if (playerNamesToDelete.length === 0) {
+                showModal('Please enter at least one player username to delete from the cache.');
+                return;
+            }
+            
+            showConfirmationModal(
+                `Are you sure you want to delete the cached data for ${playerNamesToDelete.length > 1 ? 'these players' : playerNamesToDelete[0]}? This action cannot be undone.`,
+                () => handleDeletePlayers(playerNamesToDelete),
+                'Yes, Delete',
+                'bg-yellow-600 hover:bg-yellow-700'
+            );
+        }
+
+        async function handleDeletePlayers(playerNamesToDelete) {
+            statusElements.forEach(el => el.textContent = '');
+            let deleteCount = 0;
+            let playersDeletedCount = 0;
+            
+            try {
+                const allKeys = await dbHelper.getAllPlayerKeys();
+                
+                for (const name of playerNamesToDelete) {
+                    const nameLower = name.toLowerCase();
+                    const keysToDelete = allKeys.filter(key => key.startsWith(`lichess_games_${nameLower}_`));
+                    
+                    if (keysToDelete.length > 0) {
+                        playersDeletedCount++;
+                        for (const key of keysToDelete) {
+                            await dbHelper.deletePlayerData(key);
+                            deleteCount++;
+                        }
+                    }
+                }
+
+                if (deleteCount > 0) {
+                    cacheStatus.textContent = `Deleted ${deleteCount} record(s) for ${playersDeletedCount} player(s).`;
+                } else {
+                    cacheStatus.textContent = `No cached data found for the specified player(s).`;
+                }
+                setTimeout(() => cacheStatus.textContent = '', 4000);
+                
+                await populateCachedPlayersDatalist();
+
+            } catch (error) {
+                 console.error('An error occurred during delete:', error);
+                 cacheStatus.textContent = `An error occurred. Check console.`;
+                 setTimeout(() => cacheStatus.textContent = '', 4000);
+            }
+        }
+        
+        function showModal(message) {
+             const modal = document.createElement('div');
+             modal.id = 'alert-modal';
+             modal.innerHTML = `<div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center max-w-sm w-full"><p class="mb-4">${message}</p><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md" onclick="this.parentElement.parentElement.remove()">OK</button></div></div>`;
+             document.body.appendChild(modal);
+        }
+
+        function showConfirmationModal(message, onConfirm, confirmText = 'Yes, Delete All', confirmClass = 'bg-red-600 hover:bg-red-700') {
+             const modal = document.createElement('div');
+             modal.id = 'confirm-modal';
+             modal.innerHTML = `
+                <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
+                        <p class="mb-6">${message}</p>
+                        <div class="flex justify-center gap-4">
+                            <button id="confirm-cancel-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 dark:text-white font-bold py-2 px-4 rounded-md">
+                                Cancel
+                            </button>
+                            <button id="confirm-ok-btn" class="${confirmClass} text-white font-bold py-2 px-4 rounded-md">
+                                ${confirmText}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+             
+             document.body.appendChild(modal);
+
+             document.getElementById('confirm-ok-btn').onclick = () => {
+                 onConfirm();
+                 modal.remove();
+             };
+             
+             document.getElementById('confirm-cancel-btn').onclick = () => {
+                 modal.remove();
+             };
+        }
+
+        async function handleFetchGames() {
+            const playerNames = playerInputs.map(input => input.value.trim()).filter(Boolean);
+            const p1Name = playerInputs[0].value.trim();
+            const p2Name = playerInputs[1].value.trim();
+            const otherPlayerNames = playerInputs.slice(2).map(input => input.value.trim()).filter(Boolean);
+
+            const isSinglePlayerMode = p1Name !== '' && p2Name === '' && otherPlayerNames.length === 0;
+            const isMultiPlayerMode = p1Name !== '' && p2Name !== '';
+            
+            const opponentModeValue = document.querySelector('input[name="opponentMode"]:checked').value;
+
+            if (isSinglePlayerMode) {
+            } else if (opponentModeValue === 'common' && !isMultiPlayerMode) {
+                showModal('Please enter at least Player 1 and Player 2 for "Common" mode.');
+                return;
+            } else if (opponentModeValue === 'all' && playerNames.length < 2) {
+                showModal('Please enter at least two players for "All (Played by 2+)" mode.');
+                return;
+            } else if (!isSinglePlayerMode && playerNames.length < 2) {
+                 showModal('Please enter at least two players.');
+                 return;
+            }
+
+
+            if (playerNames.length > 1) {
+                const uniquePlayerNames = [...new Set(playerNames.map(p => p.toLowerCase()))];
+                if (uniquePlayerNames.length !== playerNames.length) {
+                    showModal('Player usernames must be unique.');
+                    return;
+                }
+            }
+
+            activePlayerNames = playerNames;
+            const gameType = gameTypeSelect.value;
+            
+            let maxGames = maxGamesSelect.value;
+            if (maxGames === 'custom') {
+                // BUG FIX 3: Sanitize custom input
+                let val = parseInt(customMaxGamesInput.value, 10);
+                if (!val || val < 1) val = 300;
+                if (val > 30000) val = 30000; // Hard cap to prevent crashing
+                maxGames = val.toString();
+                customMaxGamesInput.value = val; // Update UI
+            }
+            
+            findBtn.disabled = true;
+            findBtn.textContent = 'Searching...';
+            deletePlayersBtn.disabled = true;
+            resultsContainer.classList.add('hidden');
+            resultsBody.innerHTML = '';
+            
+            // Reset status texts
+            statusElements.forEach((el) => el.textContent = '');
+            
+            // Mark all queued
+            playerNames.forEach((name, index) => {
+                 statusElements[index].textContent = `Queued for ${name}...`;
+            });
+
+            try {
+                // --- BATCH PROCESSING LOGIC (2 AT A TIME) ---
+                const BATCH_SIZE = 2;
+                currentPlayersData = new Array(playerNames.length).fill(null); // Pre-fill to maintain order
+
+                // Loop through players in chunks
+                for (let i = 0; i < playerNames.length; i += BATCH_SIZE) {
+                    const batch = playerNames.slice(i, i + BATCH_SIZE);
+                    
+                    // Create promises for the current batch
+                    const batchPromises = batch.map((name, batchIndex) => {
+                        const globalIndex = i + batchIndex;
+                        const statusElement = statusElements[globalIndex];
+                        statusElement.textContent = `Processing for ${name}...`;
+                        
+                        // Return the promise so Promise.all waits for it
+                        return getPlayerData(name, gameType, statusElement, true, maxGames)
+                            .then(data => {
+                                // Store result at the correct index
+                                if (data) {
+                                    currentPlayersData[globalIndex] = {
+                                        name: name,
+                                        data: data.opponentsMap,
+                                        rating: data.latestRating,
+                                        oldestGameDate: data.oldestGameDate // Store for coverage warning
+                                    };
+                                }
+                            })
+                            .catch(e => {
+                                console.error(e);
+                                statusElement.textContent = `Error: ${e.message}`;
+                            });
+                    });
+
+                    // Wait for the ENTIRE batch to finish before starting next batch
+                    await Promise.all(batchPromises);
+                    
+                    // Optional small delay between batches to be extra safe
+                    if (i + BATCH_SIZE < playerNames.length) {
+                         await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                // BUG FIX 1: Sync activePlayerNames with failed fetches
+                const successfulPlayers = [];
+                const successfulNames = [];
+                
+                currentPlayersData.forEach((p, index) => {
+                    if (p !== null) {
+                        successfulPlayers.push(p);
+                        successfulNames.push(playerNames[index]);
+                    } else {
+                        // Optional: Mark error on status element if not already
+                        statusElements[index].textContent += " (Failed)";
+                    }
+                });
+
+                currentPlayersData = successfulPlayers;
+                activePlayerNames = successfulNames;
+                
+                if (currentPlayersData.length > 0) {
+                    reAnalyzeAndDisplay();
+                }
+
+            } catch (error) {
+                console.error('An error occurred:', error);
+            } finally {
+                findBtn.disabled = false;
+                findBtn.textContent = 'Fetch Games';
+                checkSinglePlayerMode(true); // Force recheck mode based on input state
+                deletePlayersBtn.disabled = false;
+                await populateCachedPlayersDatalist();
+            }
+        }
+        
+        function reAnalyzeAndDisplay() {
+            if (currentPlayersData.length === 0) return;
+            
+            const isSinglePlayerMode = currentPlayersData.length === 1 && currentPlayersData[0].name.toLowerCase() === playerInputs[0].value.trim().toLowerCase();
+
+            const rated = ratedCheck.checked;
+            const unrated = unratedCheck.checked;
+            const tournamentOnly = tournamentCheck.checked; 
+            const strictMode = strictModeCheck.checked;
+            
+            const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
+            
+            // Determine date cutoff logic
+            let daysFilter = 0;
+            let isDateRange = false;
+            let startTs = 0;
+            let endTs = 0;
+
+            if (dateFilterRadioValue === 'range') {
+                isDateRange = true;
+                const sDate = startDateInput.value ? new Date(startDateInput.value) : null;
+                const eDate = endDateInput.value ? new Date(endDateInput.value) : null;
+                
+                if (sDate) startTs = sDate.getTime();
+                else startTs = 0; // Default to beginning
+                
+                if (eDate) {
+                    // Set end date to end of day (23:59:59.999)
+                    eDate.setHours(23, 59, 59, 999);
+                    endTs = eDate.getTime();
+                } else {
+                    endTs = Date.now(); // Default to now
+                }
+
+            } else if (dateFilterRadioValue === 'custom') {
+                daysFilter = parseInt(customDaysInput.value, 10) || 0;
+            } else if (dateFilterRadioValue !== 'all') {
+                daysFilter = parseInt(dateFilterRadioValue, 10);
+            }
+            
+            const opponentModeValue = document.querySelector('input[name="opponentMode"]:checked').value;
+
+            const p2Required = !isSinglePlayerMode && !currentPlayersData[1] && opponentModeValue === 'common';
+            if (p2Required) {
+                 showModal('Player 2 is required for "Common" mode.');
+                 resultsContainer.classList.add('hidden');
+                 return;
+            }
+
+            if (!rated && !unrated) {
+                showModal('Please select at least one game status (Rated or Unrated).');
+                resultsContainer.classList.add('hidden');
+                statusElements.forEach(el => el.textContent = '');
+                statusElements[0].textContent = 'Please select a game status to see results.';
+                return;
+            }
+            
+            const { common, totals, headToHeadData } = findCommonOpponents(currentPlayersData, rated, unrated, daysFilter, opponentModeValue, tournamentOnly, isDateRange, startTs, endTs, strictMode);
+            
+            displayResults(activePlayerNames, common, totals, isSinglePlayerMode, headToHeadData, {isDateRange, startTs, daysFilter, dateFilterRadioValue});
+        }
+
+        async function getPlayerData(username, perfType, statusElement, forceUpdate = false, maxGames = '300') {
+            const cacheKey = `lichess_games_${username.toLowerCase()}_${perfType}`;
+            let cachedData = null;
+            
+            try {
+                cachedData = await dbHelper.getPlayerData(cacheKey);
+            } catch (e) { }
+
+            const requestedMax = parseInt(maxGames, 10) || 10000;
+            
+            let since = 0;
+            let cachedGamesCount = 0;
+            let mostRecentGameDate = 0;
+            let oldestGameDate = Date.now(); 
+            
+            if (cachedData && cachedData.opponentsMap) {
+                const allOpponents = Object.values(cachedData.opponentsMap);
+                for (const opponent of allOpponents) {
+                    if (opponent.games) {
+                        for (const game of opponent.games) {
+                            cachedGamesCount++;
+                            if (game.date > mostRecentGameDate) mostRecentGameDate = game.date;
+                            if (game.date < oldestGameDate) oldestGameDate = game.date;
+                        }
+                    }
+                }
+                if (cachedGamesCount > 0) {
+                    since = mostRecentGameDate + 1; 
+                    statusElement.textContent = `Updating ${username} (found ${cachedGamesCount} cached)...`;
+                } else {
+                    oldestGameDate = 0; 
+                }
+            } else {
+                oldestGameDate = 0; 
+            }
+
+            let fetchUrlParams = { since: 0, max: 0, until: 0 };
+            
+            if (since > 0) {
+                fetchUrlParams.since = since;
+                fetchUrlParams.max = 1000; 
+            } else {
+                fetchUrlParams.max = requestedMax;
+            }
+            
+            let { opponentsMap: newOpponentsMap, latestRating: newLatestRating, oldestGameDate: fetchedOldest } = await fetchAndProcessGames(username, perfType, statusElement, fetchUrlParams.max, fetchUrlParams.since, 0);
+
+            if (fetchedOldest > 0 && (oldestGameDate === 0 || fetchedOldest < oldestGameDate)) {
+                oldestGameDate = fetchedOldest;
+            }
+
+            let mergedOpponentsMap = cachedData ? cachedData.opponentsMap : {};
+            let newGamesAdded = 0;
+
+            for (const [opponentLower, newOpponentData] of Object.entries(newOpponentsMap)) {
+                if (!mergedOpponentsMap[opponentLower]) {
+                    mergedOpponentsMap[opponentLower] = newOpponentData;
+                    newGamesAdded += newOpponentData.games.length;
+                } else {
+                    if (!mergedOpponentsMap[opponentLower].games) {
+                        mergedOpponentsMap[opponentLower].games = [];
+                    }
+                    const existingGameIds = new Set(mergedOpponentsMap[opponentLower].games.map(g => g.id));
+                    
+                    for (const newGame of newOpponentData.games) {
+                        if (!existingGameIds.has(newGame.id)) {
+                            mergedOpponentsMap[opponentLower].games.push(newGame);
+                            newGamesAdded++;
+                        }
+                    }
+                    mergedOpponentsMap[opponentLower].originalCase = newOpponentData.originalCase;
+                }
+            }
+            
+            let totalGamesAfterHeadUpdate = 0;
+            Object.values(mergedOpponentsMap).forEach(opp => {
+                if (opp.games) totalGamesAfterHeadUpdate += opp.games.length;
+            });
+
+            if (since > 0 && totalGamesAfterHeadUpdate < requestedMax) {
+                const needed = requestedMax - totalGamesAfterHeadUpdate;
+                if (needed > 0) {
+                    statusElement.textContent = `Fetching ${needed} older games for ${username} (backfilling)...`;
+                    const backfillData = await fetchAndProcessGames(username, perfType, statusElement, needed, 0, oldestGameDate - 1);
+                    
+                    if (backfillData.oldestGameDate > 0 && backfillData.oldestGameDate < oldestGameDate) {
+                        oldestGameDate = backfillData.oldestGameDate;
+                    }
+
+                    for (const [opponentLower, newOpponentData] of Object.entries(backfillData.opponentsMap)) {
+                        if (!mergedOpponentsMap[opponentLower]) {
+                            mergedOpponentsMap[opponentLower] = newOpponentData;
+                            newGamesAdded += newOpponentData.games.length;
+                        } else {
+                            if (!mergedOpponentsMap[opponentLower].games) mergedOpponentsMap[opponentLower].games = [];
+                            const existingGameIds = new Set(mergedOpponentsMap[opponentLower].games.map(g => g.id));
+                            for (const newGame of newOpponentData.games) {
+                                if (!existingGameIds.has(newGame.id)) {
+                                    mergedOpponentsMap[opponentLower].games.push(newGame);
+                                    newGamesAdded++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            let finalTotalGames = 0;
+            Object.values(mergedOpponentsMap).forEach(opp => {
+                if (opp.games) {
+                    finalTotalGames += opp.games.length;
+                }
+            });
+            
+            const finalData = { 
+                opponentsMap: mergedOpponentsMap, 
+                latestRating: newLatestRating || (cachedData ? cachedData.latestRating : null),
+                oldestGameDate: oldestGameDate
+            };
+            
+            try {
+                await dbHelper.savePlayerData(cacheKey, finalData);
+                statusElement.textContent = `Processed ${username}: ${finalTotalGames} total games.`;
+                return finalData;
+            } catch (e) {
+                console.error('Failed to cache game data to IndexedDB.', e);
+                statusElement.textContent += ' (Cache full!)';
+                showModal(`Failed to save data for ${username}. Your browser's IndexedDB storage might be full.`);
+                return finalData;
+            }
+        }
+
+        function extractRatingFromGame(gameJson, mainPlayerLower) {
+            let playerObj = null;
+            
+            if (gameJson.players?.white?.user?.name?.toLowerCase() === mainPlayerLower) {
+                playerObj = gameJson.players.white;
+            } else if (gameJson.players?.black?.user?.name?.toLowerCase() === mainPlayerLower) {
+                playerObj = gameJson.players.black;
+            }
+
+            if (playerObj) {
+                const rating = playerObj.rating;
+                const diff = playerObj.ratingDiff;
+
+                if (typeof diff === 'number') {
+                    const baseRating = (typeof rating === 'number' ? rating : 1500);
+                    return baseRating + diff;
+                }
+                else if (typeof rating === 'number') {
+                    return rating;
+                }
+            }
+            
+            return null;
+        }
+
+        async function fetchAndProcessGames(username, perfType, statusElement, maxGames = '300', since = 0, until = 0) {
+            let url = `https://lichess.org/api/games/user/${username}?perfType=${perfType}`;
+            
+            if (since > 0) {
+                url += `&since=${since}`;
+                url += `&max=2000`; 
+            } else {
+                url += `&max=${maxGames}`;
+            }
+            
+            if (until > 0) {
+                url += `&until=${until}`;
+            }
+
+            const opponentsMap = {};
+            let gamesProcessed = 0;
+            let latestRating = null;
+            let oldestGameDate = 0;
+            const mainPlayerLower = username.toLowerCase();
+
+            // Retry Logic Wrapper
+            const performFetch = async (retryCount = 0) => {
+                try {
+                    const response = await fetch(url, { headers: { 'Accept': 'application/x-ndjson' } });
+
+                    if (response.status === 404) throw new Error(`Player '${username}' not found.`);
+                    
+                    if (response.status === 429) {
+                         if (retryCount < 2) { // Retry up to 2 times
+                             statusElement.textContent = `Rate limit (429) for ${username}. Retrying in 10s...`;
+                             await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10s
+                             return performFetch(retryCount + 1);
+                         }
+                         throw new Error(`Rate limit exceeded for ${username}. Please wait a minute.`);
+                    }
+                    
+                    if (!response.ok) throw new Error(`API request failed for ${username} with status ${response.status}.`);
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const jsonLines = buffer.split('\n');
+                        buffer = jsonLines.pop(); 
+
+                        for (const line of jsonLines) {
+                            if (line.trim()) {
+                                try {
+                                    const gameJson = JSON.parse(line);
+                                    
+                                    if (latestRating === null && since === 0 && until === 0) {
+                                        latestRating = extractRatingFromGame(gameJson, mainPlayerLower);
+                                    } else if (latestRating === null && since > 0) {
+                                        latestRating = extractRatingFromGame(gameJson, mainPlayerLower);
+                                    }
+
+                                    if (gameJson.createdAt) {
+                                        if (oldestGameDate === 0 || gameJson.createdAt < oldestGameDate) {
+                                            oldestGameDate = gameJson.createdAt;
+                                        }
+                                    }
+
+                                    parseGameAndUpdate(gameJson, username, opponentsMap);
+                                    gamesProcessed++;
+                                    if (gamesProcessed % 50 === 0) {
+                                        statusElement.textContent = `Fetching ${username}... (${gamesProcessed})`;
+                                    }
+                                } catch (e) {
+                                    console.warn('Failed to parse JSON line, skipping:', line, e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (buffer.trim()) {
+                        try {
+                            const gameJson = JSON.parse(buffer);
+                            if (latestRating === null) latestRating = extractRatingFromGame(gameJson, mainPlayerLower);
+                            if (gameJson.createdAt) {
+                                if (oldestGameDate === 0 || gameJson.createdAt < oldestGameDate) {
+                                    oldestGameDate = gameJson.createdAt;
+                                }
+                            }
+                            parseGameAndUpdate(gameJson, username, opponentsMap);
+                            gamesProcessed++;
+                        } catch (e) {
+                             console.warn('Failed to parse final JSON line, skipping:', buffer, e);
+                        }
+                    }
+
+                    return { opponentsMap, latestRating, oldestGameDate };
+
+                } catch (error) {
+                    throw error;
+                }
+            };
+
+            return performFetch();
+        }
+
+        function parseGameAndUpdate(gameJson, mainPlayerUsername, opponentsMap) {
+            const whitePlayer = gameJson.players?.white?.user?.name || 'Anonymous';
+            const blackPlayer = gameJson.players?.black?.user?.name || 'Anonymous';
+            
+            let result;
+            if (gameJson.status === 'draw' || gameJson.status === 'stalemate') {
+                result = '1/2-1/2';
+            } else if (gameJson.winner === 'white') {
+                result = '1-0';
+            } else if (gameJson.winner === 'black') {
+                result = '0-1';
+            } else {
+                return; 
+            }
+
+            const isRatedGame = gameJson.rated; 
+            const gameDate = gameJson.createdAt;
+
+            if (!gameDate) {
+                return;
+            }
+
+            let opponent;
+            let mainPlayerColor;
+            let opponentRating;
+
+            if (whitePlayer.toLowerCase() === mainPlayerUsername.toLowerCase()) {
+                opponent = blackPlayer;
+                mainPlayerColor = 'white';
+                opponentRating = gameJson.players?.black?.rating || 1500;
+            } else if (blackPlayer.toLowerCase() === mainPlayerUsername.toLowerCase()) {
+                opponent = whitePlayer;
+                mainPlayerColor = 'black';
+                opponentRating = gameJson.players?.white?.rating || 1500;
+            } else {
+                return;
+            }
+            
+            if (opponent === 'Anonymous') {
+                return;
+            }
+
+            const opponentLower = opponent.toLowerCase();
+            if (!opponentsMap[opponentLower]) {
+                opponentsMap[opponentLower] = {
+                    originalCase: opponent,
+                    games: []
+                };
+            }
+            
+            // Check for tournament/swiss/arena ID
+            const tournamentId = gameJson.tournament || gameJson.swiss || gameJson.arena || null;
+            
+            // Capture clock info
+            const clockData = gameJson.clock || null;
+
+            // Capture Round info (if available)
+            const roundInfo = gameJson.round || '-';
+
+            const gameData = {
+                id: gameJson.id, // Store ID
+                rated: isRatedGame,
+                date: gameDate,
+                result: 'd', // Keep this for internal stats logic (w/l/d relative to main player)
+                score: result, // Store absolute result "1-0", "0-1", "1/2-1/2" for PGN export
+                oppRating: opponentRating,
+                white: whitePlayer, // Store White Name
+                black: blackPlayer, // Store Black Name
+                moves: gameJson.moves, // Store Moves
+                tournament: tournamentId, // Store Tournament ID
+                clock: clockData, // Store Clock Data
+                round: roundInfo // Store Round Info
+            };
+
+            if (result === "1-0") {
+                gameData.result = (mainPlayerColor === 'white' ? 'w' : 'l');
+            } else if (result === "0-1") {
+                gameData.result = (mainPlayerColor === 'black' ? 'w' : 'l');
+            }
+            
+            opponentsMap[opponentLower].games.push(gameData);
+        }
+        
+        function findCommonOpponents(playersData, rated, unrated, daysFilter, opponentMode = 'common', tournamentOnly = false, isDateRange = false, startTs = 0, endTs = 0, strictMode = false) {
+            const isSinglePlayerMode = playersData.length === 1 || !playersData[1];
+            
+            const totals = playersData.map(p => ({ wins: 0, losses: 0, draws: 0, games: 0, totalOppRating: 0 }));
+            const common = [];
+            let headToHeadData = [];
+
+            const now = Date.now();
+            let dateCutoff = 0;
+            
+            // Use cutoff for "Last N days"
+            if (!isDateRange && daysFilter > 0) {
+                dateCutoff = now - daysFilter * 24 * 60 * 60 * 1000;
+            }
+
+            // MODIFIED: getFilteredRecord now processes H2H specific logic
+            // For normal games: calculate W/L/D based on stored 'result' (relative to main player)
+            // For H2H merged games: calculate W/L/D based on 'white'/'black' and 'score' absolute result
+            const getFilteredRecord = (allGames, targetPlayerNameForH2H = null) => {
+                const record = { w: 0, l: 0, d: 0, totalOppRating: 0, gameCount: 0, lastPlayed: 0 };
+                if (!allGames) return record;
+                
+                const targetLower = targetPlayerNameForH2H ? targetPlayerNameForH2H.toLowerCase() : null;
+
+                for (const game of allGames) {
+                    // Tournament Filter
+                    if (tournamentOnly && !game.tournament) continue;
+
+                    // Date Filter
+                    if (isDateRange) {
+                        if (game.date < startTs || game.date > endTs) continue;
+                    } else {
+                        if (game.date < dateCutoff) continue;
+                    }
+                    
+                    if ((rated && game.rated) || (unrated && !game.rated)) {
+                        let isWin = false;
+                        let isLoss = false;
+                        let isDraw = false;
+                        
+                        // LOGIC BRANCH: H2H Merged Game (where 'result' might conflict) vs Standard Opponent Game
+                        if (targetLower) {
+                            // Calculate result RELATIVE TO targetPlayerNameForH2H
+                            // game.score is "1-0", "0-1", "1/2-1/2"
+                            if (game.score === '1/2-1/2') {
+                                isDraw = true;
+                            } else if (game.score === '1-0') {
+                                if (game.white.toLowerCase() === targetLower) isWin = true;
+                                else isLoss = true;
+                            } else if (game.score === '0-1') {
+                                if (game.black.toLowerCase() === targetLower) isWin = true;
+                                else isLoss = true;
+                            }
+                        } else {
+                             // Standard relative calculation using pre-computed 'result'
+                            if (game.result === 'w') isWin = true;
+                            else if (game.result === 'l') isLoss = true;
+                            else if (game.result === 'd') isDraw = true;
+                        }
+
+                        if (isWin) record.w++;
+                        else if (isLoss) record.l++;
+                        else if (isDraw) record.d++;
+                        
+                        record.totalOppRating += (game.oppRating || 1500);
+                        record.gameCount++;
+                        if (game.date > record.lastPlayed) record.lastPlayed = game.date;
+                    }
+                }
+                return record;
+            };
+            
+            if (isSinglePlayerMode) {
+                const firstPlayerOpponents = Object.keys(playersData[0].data);
+                for (const opponentLower of firstPlayerOpponents) {
+                    const allOpponentData = playersData[0].data[opponentLower];
+                    const combinedRecord = getFilteredRecord(allOpponentData.games);
+                    
+                    if (combinedRecord.gameCount > 0) {
+                        const opponentData = {
+                            name: allOpponentData.originalCase,
+                            nameLower: opponentLower, 
+                            records: [{ w: combinedRecord.w, l: combinedRecord.l, d: combinedRecord.d, score: combinedRecord.w - combinedRecord.l }],
+                            totalGames: combinedRecord.gameCount,
+                            lastPlayed: combinedRecord.lastPlayed
+                        };
+                        
+                        totals[0].wins += combinedRecord.w;
+                        totals[0].losses += combinedRecord.l;
+                        totals[0].draws += combinedRecord.d;
+                        totals[0].games += combinedRecord.gameCount;
+                        totals[0].totalOppRating += combinedRecord.totalOppRating;
+                        
+                        common.push(opponentData);
+                    }
+                }
+            } else {
+                // H2H Calculation (SMART MERGE)
+                for (let i = 0; i < playersData.length; i++) {
+                    const mainPlayer = playersData[i];
+                    const h2hOpponentData = {
+                        name: mainPlayer.name,
+                        nameLower: mainPlayer.name.toLowerCase(),
+                        records: new Array(playersData.length).fill(null).map(() => ({ w: 0, l: 0, d: 0, score: 0 })),
+                        totalGames: 0,
+                        lastPlayed: 0
+                    };
+
+                    for (let j = 0; j < playersData.length; j++) {
+                        if (i === j) {
+                            h2hOpponentData.records[j] = 'self';
+                            continue;
+                        }
+                        
+                        const otherPlayer = playersData[j];
+                        const otherPlayerLower = otherPlayer.name.toLowerCase();
+                        const mainPlayerLower = mainPlayer.name.toLowerCase();
+                        
+                        // MERGE LOGIC: Get games from both sides
+                        const gamesFromMain = mainPlayer.data[otherPlayerLower]?.games || [];
+                        const gamesFromOther = otherPlayer.data[mainPlayerLower]?.games || [];
+                        
+                        // Deduplicate by Game ID
+                        const gameMap = new Map();
+                        gamesFromMain.forEach(g => gameMap.set(g.id, g));
+                        gamesFromOther.forEach(g => gameMap.set(g.id, g));
+                        
+                        const mergedGames = Array.from(gameMap.values());
+                        
+                        if (mergedGames.length > 0) {
+                            // Calculate Record relative to OTHER PLAYER (Player J)
+                            // Because the column headers are "Player J's Record"
+                            const filteredRecord = getFilteredRecord(mergedGames, otherPlayer.name);
+                            
+                            if (filteredRecord.gameCount > 0) {
+                                h2hOpponentData.records[j] = { w: filteredRecord.w, l: filteredRecord.l, d: filteredRecord.d, score: filteredRecord.w - filteredRecord.l };
+                                if (filteredRecord.lastPlayed > h2hOpponentData.lastPlayed) {
+                                    h2hOpponentData.lastPlayed = filteredRecord.lastPlayed;
+                                }
+                            }
+                        }
+                    }
+                    headToHeadData.push(h2hOpponentData);
+                }
+                
+                if (opponentMode === 'common') {
+                    const targetData = playersData[0]; 
+                    const targetOpponents = Object.keys(targetData.data);
+
+                    for (const opponentLower of targetOpponents) {
+                        const targetOpponentData = targetData.data[opponentLower];
+                        const targetRecord = getFilteredRecord(targetOpponentData.games);
+
+                        if (targetRecord.gameCount === 0) continue;
+
+                        let anchorMatchCount = 0;
+                        let maxLastPlayed = targetRecord.lastPlayed;
+                        
+                        const individualRecords = new Array(playersData.length).fill(null);
+                        individualRecords[0] = targetRecord;
+
+                        // Check Anchors (Players 2+)
+                        for (let i = 1; i < playersData.length; i++) {
+                            const anchorPlayer = playersData[i];
+                            const anchorOpponentData = anchorPlayer.data[opponentLower];
+                            let anchorRecord = { w: 0, l: 0, d: 0, totalOppRating: 0, gameCount: 0, lastPlayed: 0 };
+
+                            if (anchorOpponentData) {
+                                anchorRecord = getFilteredRecord(anchorOpponentData.games);
+                            }
+                            individualRecords[i] = anchorRecord;
+
+                            if (anchorRecord.gameCount > 0) {
+                                anchorMatchCount++;
+                                if (anchorRecord.lastPlayed > maxLastPlayed) maxLastPlayed = anchorRecord.lastPlayed;
+                            }
+                        }
+
+                        let include = false;
+                        if (strictMode) {
+                            include = (anchorMatchCount === (playersData.length - 1));
+                        } else {
+                            include = (anchorMatchCount > 0);
+                        }
+
+                        if (!include) continue;
+
+                        const opponentData = {
+                            name: targetOpponentData.originalCase,
+                            nameLower: opponentLower, 
+                            records: new Array(playersData.length).fill(null).map(() => ({ w: 0, l: 0, d: 0, score: 0 })),
+                            totalGames: 0,
+                            lastPlayed: maxLastPlayed
+                        };
+
+                        // Aggregation
+                        for (let i = 0; i < playersData.length; i++) {
+                            const rec = individualRecords[i];
+                            if (rec && rec.gameCount > 0) {
+                                opponentData.records[i] = { w: rec.w, l: rec.l, d: rec.d, score: rec.w - rec.l };
+                                opponentData.totalGames += rec.gameCount;
+
+                                totals[i].wins += rec.w;
+                                totals[i].losses += rec.l;
+                                totals[i].draws += rec.d;
+                                totals[i].games += rec.gameCount;
+                                totals[i].totalOppRating += rec.totalOppRating;
+                            }
+                        }
+                        common.push(opponentData);
+                    }
+                    
+                    if (common.length > 0) {
+                        const combinedAnchorTotals = { wins: 0, losses: 0, draws: 0, games: 0, totalOppRating: 0 };
+                        for (let i = 1; i < playersData.length; i++) {
+                            const t = totals[i];
+                            combinedAnchorTotals.wins += t.wins;
+                            combinedAnchorTotals.losses += t.losses;
+                            combinedAnchorTotals.draws += t.draws;
+                            combinedAnchorTotals.games += t.games;
+                            combinedAnchorTotals.totalOppRating += t.totalOppRating;
+                        }
+                        totals.combinedAnchors = combinedAnchorTotals;
+                    }
+
+                } else { // 'all' (Played by 2+)
+                    const allOpponents = new Map();
+
+                    playersData.forEach((player, playerIndex) => {
+                        Object.keys(player.data).forEach(opponentLower => {
+                            const opponentData = player.data[opponentLower];
+                            const filteredRecord = getFilteredRecord(opponentData.games);
+
+                            if (filteredRecord.gameCount > 0) {
+                                if (!allOpponents.has(opponentLower)) {
+                                    allOpponents.set(opponentLower, {
+                                        name: opponentData.originalCase,
+                                        playerRecords: new Array(playersData.length).fill(null),
+                                        playCount: 0,
+                                        totalGames: 0,
+                                        lastPlayed: 0
+                                    });
+                                }
+                                const opp = allOpponents.get(opponentLower);
+                                opp.playerRecords[playerIndex] = { w: filteredRecord.w, l: filteredRecord.l, d: filteredRecord.d, score: filteredRecord.w - filteredRecord.l };
+                                opp.playCount++;
+                                opp.totalGames += filteredRecord.gameCount;
+                                if (filteredRecord.lastPlayed > opp.lastPlayed) opp.lastPlayed = filteredRecord.lastPlayed;
+
+                                totals[playerIndex].wins += filteredRecord.w;
+                                totals[playerIndex].losses += filteredRecord.l;
+                                totals[playerIndex].draws += filteredRecord.d;
+                                totals[playerIndex].games += filteredRecord.gameCount;
+                                totals[playerIndex].totalOppRating += filteredRecord.totalOppRating;
+                            }
+                        });
+                    });
+
+                    for (const [opponentLower, oppData] of allOpponents.entries()) {
+                        let include = false;
+                        if (strictMode) {
+                            include = (oppData.playCount === playersData.length);
+                        } else {
+                            include = (oppData.playCount >= 2);
+                        }
+
+                        if (include) {
+                            common.push({
+                                name: oppData.name,
+                                nameLower: opponentLower,
+                                records: oppData.playerRecords,
+                                totalGames: oppData.totalGames,
+                                lastPlayed: oppData.lastPlayed
+                            });
+                        }
+                    }
+                }
+            }
+            
+            return { common, totals, headToHeadData };
+        }
+
+        function calculateFidePerformance(t) {
+            if (!t.games || t.games === 0) {
+                return { perf: 'N/A', dp: 0, avgOpp: 'N/A' };
+            }
+            
+            const avgOppRating = t.totalOppRating / t.games;
+            const scorePct = (t.wins + 0.5 * t.draws) / t.games;
+            
+            let ratingDifference;
+            
+            if (scorePct === 1) {
+                ratingDifference = 800;
+            } else if (scorePct === 0) {
+                ratingDifference = -800;
+            } else {
+                ratingDifference = -400 * Math.log10((1 / scorePct) - 1);
+            }
+            
+            ratingDifference = Math.max(-800, Math.min(800, ratingDifference));
+            
+            return { 
+                perf: Math.round(avgOppRating + ratingDifference), 
+                dp: ratingDifference, 
+                avgOpp: Math.round(avgOppRating) 
+            };
+        }
+
+        function displayResults(playerNames, commonOpponents, totals, isSinglePlayerMode = false, headToHeadData = [], filterContext = {}) {
+            currentCommonOpponents = commonOpponents;
+            currentHeadToHeadData = headToHeadData || [];
+
+            if (commonOpponents.length === 0 && isSinglePlayerMode) {
+                statusElements.forEach(el => el.textContent = '');
+                totalsText.innerHTML = '';
+                warningText.classList.add('hidden');
+                resultsContainer.classList.add('hidden');
+                statusElements[0].textContent = 'No opponents found for the selected filters.';
+                return;
+            }
+
+            if (commonOpponents.length === 0 && !isSinglePlayerMode) {
+                statusElements.forEach(el => el.textContent = ''); 
+                warningText.classList.add('hidden');
+                const opponentModeValue = document.querySelector('input[name="opponentMode"]:checked').value;
+                if (opponentModeValue === 'common') {
+                    statusElements[0].textContent = 'No opponents found matching the Common criteria.';
+                } else {
+                    statusElements[0].textContent = 'No opponents found that were played by at least two players.';
+                }
+            } else {
+                statusElements.forEach(el => el.textContent = ''); 
+            }
+            
+            const { isDateRange, startTs, daysFilter, dateFilterRadioValue } = filterContext;
+            const now = Date.now();
+            let requestedOldest = 0;
+            
+            if (isDateRange && startTs > 0) {
+                requestedOldest = startTs;
+            } else if (!isDateRange && daysFilter > 0) {
+                requestedOldest = now - (daysFilter * 24 * 60 * 60 * 1000);
+            }
+            
+            let oldestFetched = 0;
+            if (currentPlayersData.length > 0) {
+                const oldestDates = currentPlayersData.map(p => p.oldestGameDate).filter(d => d > 0);
+                if (oldestDates.length > 0) {
+                    oldestFetched = Math.max(...oldestDates);
+                }
+            }
+
+            if (requestedOldest > 0 && oldestFetched > requestedOldest) {
+                const reachedDate = new Date(oldestFetched).toLocaleDateString();
+                warningText.textContent = `Warning: "Max Games" limit reached. Data only goes back to ${reachedDate}. Increase "Max Games" to cover the full requested period.`;
+                warningText.classList.remove('hidden');
+            } else {
+                warningText.classList.add('hidden');
+            }
+
+
+            resultsHead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            let headerHTML = '<th class="p-3 text-sm font-semibold tracking-wide bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200">Opponent</th>';
+            headerHTML += '<th class="p-3 text-sm font-semibold tracking-wide bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-center">Last Played</th>';
+            
+            if (isSinglePlayerMode) {
+                 headerHTML += `<th class="p-3 text-sm font-semibold tracking-wide bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200">${playerNames[0]}'s Record (W-L-D)</th>`;
+            } else {
+                ['Player 1', 'Player 2', 'Player 3', 'Player 4'].forEach((name, i) => {
+                    const playerName = playerNames[i] || name;
+                    headerHTML += `<th class="p-3 text-sm font-semibold tracking-wide bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200">${playerName}'s Record (W-L-D)</th>`;
+                });
+            }
+            headerRow.innerHTML = headerHTML;
+            resultsHead.appendChild(headerRow);
+
+            let rawDateFilterText;
+            
+            if (dateFilterRadioValue === 'range') {
+                const s = document.getElementById('startDate').value;
+                const e = document.getElementById('endDate').value;
+                rawDateFilterText = `${s} to ${e}`;
+            } else if (dateFilterRadioValue === 'custom') {
+                const customDaysVal = document.getElementById('customDays').value;
+                if (customDaysVal && parseInt(customDaysVal, 10) > 0) {
+                    rawDateFilterText = `Last ${customDaysVal}d`;
+                } else {
+                    rawDateFilterText = 'Custom (All)';
+                }
+            } else {
+                rawDateFilterText = document.querySelector(`label input[name="dateFilter"][value="${dateFilterRadioValue}"]`).nextElementSibling.textContent;
+            }
+            
+            let filterParts = [];
+            let shortDateText = rawDateFilterText;
+            if (rawDateFilterText === 'All') shortDateText = 'All';
+            else if (rawDateFilterText === 'Custom (All)') { shortDateText = 'All-time'; rawDateFilterText = 'All'; }
+            else if (rawDateFilterText.startsWith('Last ')) { const daysPart = rawDateFilterText.split(' ')[1]; shortDateText = 'L' + daysPart.replace('d', 'days'); }
+            filterParts.push(shortDateText);
+            
+            if (unratedCheck.checked && ratedCheck.checked) {
+                 // If both are checked, show both or simplify? The user example showed commas.
+                 filterParts.push('rated');
+                 filterParts.push('unrated');
+            } else {
+                if (ratedCheck.checked) filterParts.push('rated'); 
+                if (unratedCheck.checked) filterParts.push('unrated'); 
+            }
+            if (tournamentCheck.checked) filterParts.push('tournament only'); 
+
+            const filterSummaryText = filterParts.join(', '); 
+            
+            const dateInfo = `(<span class="font-semibold">${filterSummaryText}</span>) `; 
+            
+            let totalsHTML = '';
+            let scoreSummary = '';
+            let eloHTML = '';
+            
+            if (isSinglePlayerMode) {
+                const t = totals[0];
+                const basePlayer = currentPlayersData[0];
+                const baseRating = basePlayer.rating;
+                const scorePct = t.games > 0 ? `(${( (t.wins + 0.5 * t.draws) / t.games * 100).toFixed(1)}%)` : '';
+                totalsHTML = `${dateInfo}Found <strong>${commonOpponents.length}</strong> opponents in <strong>${t.games}</strong> games.<br>`;
+                totalsHTML += `<strong>Total Record:</strong> ${t.wins}W - ${t.losses}L - ${t.draws}D ${scorePct}<br>`;
+                eloHTML = '<br><strong class="mt-2 block">Performance Rating (vs these opponents):</strong>';
+                const fidePerfData = calculateFidePerformance(t);
+                const performanceRating = fidePerfData.perf;
+                const avgOppRating = fidePerfData.avgOpp;
+                eloHTML += `<strong>${playerNames[0]}:</strong> `; 
+                if (performanceRating === 'N/A') {
+                    eloHTML += `N/A (No Games) | Rating: <strong class="text-gray-900 dark:text-white">${baseRating || 'N/A'}</strong><br>`;
+                } else {
+                    let perfClass = 'text-gray-900 dark:text-white';
+                    let diffStr = '';
+                    if (baseRating) {
+                        const diff = performanceRating - baseRating;
+                        if (diff > 0) { perfClass = 'text-green-600 dark:text-green-400'; diffStr = ` (<span class="${perfClass}">+${diff}</span> vs actual)`; }
+                        else if (diff < 0) { perfClass = 'text-red-600 dark:text-red-400'; diffStr = ` (<span class="${perfClass}">${diff}</span> vs actual)`; }
+                        else { diffStr = ' (= actual)'; }
+                    }
+                    eloHTML += `Perf: <strong class="${perfClass}">${performanceRating}</strong> | Rating: <strong class="text-gray-900 dark:text-white">${baseRating || 'N/A'}</strong>${diffStr}<br>`;
+                    eloHTML += `<span class="text-xs text-gray-600 dark:text-gray-400 block ml-4 mb-1">(vs Avg. Opp: ${avgOppRating})</span>`;
+                }
+            } else {
+                const opponentModeValue = document.querySelector('input[name="opponentMode"]:checked').value;
+                const isStrict = strictModeCheck.checked;
+                const isAllPlayersMode = !isSinglePlayerMode && opponentModeValue === 'all';
+                let vsTextShort = '(common)';
+                let vsTextDesc = '';
+                if (isAllPlayersMode) {
+                     if (isStrict) { vsTextDesc = `Played by ALL ${playerNames.length} players`; vsTextShort = '(all)'; }
+                     else { vsTextDesc = `Played by 2+ players`; vsTextShort = '(all)'; }
+                } else {
+                    if (isStrict) { vsTextDesc = `Common (Played by ALL listed)`; vsTextShort = '(all)'; }
+                    else { vsTextDesc = `Common (P1 + At least one Anchor)`; vsTextShort = '(common)'; }
+                }
+                totalsHTML = `${dateInfo}Found <strong>${commonOpponents.length}</strong> opponents. <span class="text-sm text-gray-500">(${vsTextDesc})</span><br>`;
+                playerNames.forEach((name, i) => {
+                    const t = totals[i];
+                    if (t.games > 0) {
+                        totalsHTML += `<strong>${name}'s Total Record (${vsTextShort}):</strong> ${t.wins}W - ${t.losses}L - ${t.draws}D (${t.games} games)<br>`;
+                    }
+                });
+                scoreSummary = `Total score (W-L) vs group: `;
+                scoreSummary += playerNames.map((name, i) => {
+                    const t = totals[i];
+                    if (t.games === 0) return '';
+                    const scorePct = `(${((t.wins + 0.5 * t.draws) / t.games * 100).toFixed(1)}%)`;
+                    const wl = t.wins - t.losses;
+                    return `<strong>${name}:</strong> ${wl} ${scorePct}`;
+                }).filter(Boolean).join(' &mdash; ');
+                const fidePerfResults = totals.map(t => calculateFidePerformance(t));
+                eloHTML = `<br><strong class="mt-2 block">Performance Rating (vs group):</strong>`;
+                for (let i = 0; i < playerNames.length; i++) {
+                    const t = totals[i];
+                    if (t.games === 0) continue;
+                    const playerRating = currentPlayersData[i].rating;
+                    const { perf: performanceRating, avgOpp: avgOppRating } = fidePerfResults[i];
+                    eloHTML += `<strong>${playerNames[i]}:</strong> `;
+                    if (performanceRating === 'N/A') {
+                        eloHTML += `N/A (No Games) | Rating: <strong class="text-gray-900 dark:text-white">${playerRating || 'N/A'}</strong><br>`;
+                    } else {
+                        let perfClass = 'text-gray-900 dark:text-white';
+                        let diffStr = '';
+                        if (playerRating) {
+                            const diff = performanceRating - playerRating;
+                            if (diff > 0) { perfClass = 'text-green-600 dark:text-green-400'; diffStr = ` (<span class="${perfClass}">+${diff}</span> vs actual)`; }
+                            else if (diff < 0) { perfClass = 'text-red-600 dark:text-red-400'; diffStr = ` (<span class="${perfClass}">${diff}</span> vs actual)`; }
+                            else { diffStr = ' (= actual)'; }
+                        }
+                        eloHTML += `Perf: <strong class="${perfClass}">${performanceRating}</strong> | Rating: <strong class="text-gray-900 dark:text-white">${playerRating || 'N/A'}</strong>${diffStr}<br>`;
+                        eloHTML += `<span class="text-xs text-gray-600 dark:text-gray-400 block ml-4 mb-1">(vs Avg. Opp: ${avgOppRating})</span>`;
+                    }
+                }
+                // MODIFIED HERE: Removed `!isStrict` condition so this block displays even when strict mode is checked
+                if (opponentModeValue === 'common' && totals.combinedAnchors) {
+                    eloHTML += '<br><strong class="mt-2 block">Relative Performance (vs Combined Anchors):</strong>';
+                    const combinedAnchorTotals = totals.combinedAnchors;
+                    const combinedAnchorPerfData = calculateFidePerformance(combinedAnchorTotals);
+                    const anchorRatings = [currentPlayersData[1]?.rating, currentPlayersData[2]?.rating, currentPlayersData[3]?.rating].filter(Boolean);
+                    const avgAnchorRating = anchorRatings.length > 0 ? anchorRatings.reduce((a, b) => a + b, 0) / anchorRatings.length : null;
+                    const basePlayerRating = avgAnchorRating ? Math.round(avgAnchorRating) : null;
+                    if (!basePlayerRating || combinedAnchorPerfData.perf === 'N/A') {
+                        eloHTML += `<span class="text-xs text-gray-600 dark:text-gray-400 block ml-4">(Requires at least one Anchor with games and a rated Elo)</span>`;
+                    } else {
+                        const baseDp = combinedAnchorPerfData.dp;
+                        eloHTML += `<strong>Combined Anchors:</strong> `;
+                        eloHTML += `(Anchor) | Avg. Rating: <strong class="text-gray-900 dark:text-white">${basePlayerRating}</strong><br>`;
+                        eloHTML += `<span class="text-xs text-gray-600 dark:text-gray-400 block ml-4 mb-1">(Perf: ${combinedAnchorPerfData.perf} vs Avg. Opp: ${combinedAnchorPerfData.avgOpp})</span>`;
+                        const playerName = playerNames[0];
+                        const currentRating = currentPlayersData[0].rating;
+                        const currentPerfData = fidePerfResults[0];
+                        eloHTML += `<strong>${playerName}:</strong> `;
+                        if (currentPerfData.perf === 'N/A') {
+                            eloHTML += `N/A (No Games) | Rating: <strong class="text-gray-900 dark:text-white">${currentRating || 'N/A'}</strong><br>`;
+                        } else {
+                            const currentDp = currentPerfData.dp;
+                            const relativeDp = currentDp - baseDp;
+                            const relativePerf = Math.round(basePlayerRating + relativeDp);
+                            const relDpStr = relativeDp >= 0 ? `+${Math.round(relativeDp)}` : Math.round(relativeDp);
+                            let diffStr = '';
+                            let relPerfClass = 'text-gray-900 dark:text-white';
+                            if (currentRating) {
+                                const diff = relativePerf - currentRating;
+                                if (diff > 0) { relPerfClass = 'text-green-600 dark:text-green-400'; diffStr = ` (<span class="${relPerfClass}">+${diff}</span> vs actual)`; }
+                                else if (diff < 0) { relPerfClass = 'text-red-600 dark:text-red-400'; diffStr = ` (<span class="${relPerfClass}">${diff}</span> vs actual)`; }
+                                else { diffStr = ' (= actual)'; }
+                            }
+                            eloHTML += `Rel. Perf: <strong class="${relPerfClass}">${relativePerf}</strong> | Actual Rating: <strong class="text-gray-900 dark:text-white">${currentRating || 'N/A'}</strong>${diffStr}<br>`;
+                            eloHTML += `<span class="text-xs text-gray-600 dark:text-gray-400 block ml-4 mb-1">(Rel. Score: ${relDpStr} vs. Anchor Pool)</span>`;
+                        }
+                        [1, 2, 3].forEach(i => {
+                            if (!playerNames[i] || !currentPlayersData[i]) return;
+                            eloHTML += `<strong>${playerNames[i]}:</strong> (Individual Anchor) | Rating: <strong class="text-gray-900 dark:text-white">${currentPlayersData[i].rating || 'N/A'}</strong><br>`;
+                        });
+                    }
+                }
+            }
+            totalsText.innerHTML = totalsHTML + scoreSummary + eloHTML;
+            sortOptions.innerHTML = `
+                <option value="name-asc">Opponent Name (A-Z)</option>
+                <option value="total-games-desc">Most Games Played</option>
+                <option value="last-played-desc" selected>Most Recently Played</option>
+            `;
+            if (isSinglePlayerMode) {
+                sortOptions.innerHTML += `
+                    <option value="p0-wins-desc">Most Wins</option>
+                    <option value="p0-losses-desc">Most Losses</option>
+                    <option value="p0-score-desc">Best Score</option>
+                `;
+            } else {
+                playerNames.forEach((name, i) => {
+                    sortOptions.innerHTML += `
+                        <option value="p${i}-wins-desc">${name}'s Wins</option>
+                        <option value="p${i}-score-desc">${name}'s Score</option>
+                    `;
+                });
+            }
+            sortOptions.value = 'last-played-desc';
+            sortAndRenderTable(); 
+            resultsContainer.classList.remove('hidden');
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function sortAndRenderTable() {
+            const sortBy = sortOptions.value;
+
+            if (sortBy === 'name-asc') {
+                currentCommonOpponents.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+            } else if (sortBy === 'total-games-desc') {
+                currentCommonOpponents.sort((a, b) => b.totalGames - a.totalGames);
+            } else if (sortBy === 'last-played-desc') {
+                currentCommonOpponents.sort((a, b) => b.lastPlayed - a.lastPlayed);
+            } else if (sortBy === 'p0-losses-desc') {
+                currentCommonOpponents.sort((a, b) => b.records[0].l - a.records[0].l);
+            } else {
+                const match = sortBy.match(/p(\d+)-(\w+)-desc/);
+                if(match) {
+                    const playerIndex = parseInt(match[1], 10);
+                    const sortKey = match[2]; 
+                    
+                    const getSortValue = (opponent, key) => {
+                        const record = opponent.records[playerIndex];
+                        return record ? record[key] : 0;
+                    };
+
+                    if (sortKey === 'wins') {
+                         currentCommonOpponents.sort((a, b) => getSortValue(b, 'w') - getSortValue(a, 'w'));
+                    } else if (sortKey === 'score') {
+                         currentCommonOpponents.sort((a, b) => getSortValue(b, 'score') - getSortValue(a, 'score'));
+                    }
+                }
+            }
+            
+            renderTable(currentCommonOpponents);
+        }
+
+        // --- Helper to build the date query string for Lichess URL ---
+        function getDateSearchQuery() {
+            const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
+            let query = '';
+
+            if (dateFilterRadioValue === 'range') {
+                const s = document.getElementById('startDate').value;
+                const e = document.getElementById('endDate').value;
+                if (s) query += `&dateMin=${s}`;
+                if (e) query += `&dateMax=${e}`;
+            } else if (dateFilterRadioValue === 'custom' || (dateFilterRadioValue !== 'all' && dateFilterRadioValue !== 'range')) {
+                // Last N Days logic for search
+                let days = 0;
+                if (dateFilterRadioValue === 'custom') {
+                     days = parseInt(document.getElementById('customDays').value, 10) || 0;
+                } else {
+                     days = parseInt(dateFilterRadioValue, 10);
+                }
+
+                if (days > 0) {
+                    const now = new Date();
+                    const past = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+                    const dateMin = past.toISOString().split('T')[0];
+                    query += `&dateMin=${dateMin}`;
+                }
+            }
+            return query;
+        }
+
+        function renderTable(opponentsData) {
+            resultsBody.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            const currentGameType = gameTypeSelect.value;
+            const isSinglePlayerMode = currentPlayersData.length === 1 || !currentPlayersData[1];
+            const p1Name = activePlayerNames[0];
+            const dateQueryPart = getDateSearchQuery();
+
+            if (!isSinglePlayerMode && currentHeadToHeadData.length > 0) {
+                currentHeadToHeadData.forEach(opponent => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bg-blue-100 dark:bg-blue-900 dark:bg-opacity-30 hover:bg-blue-200 dark:hover:bg-blue-800 dark:hover:bg-opacity-40 transition-colors duration-200 border-b dark:border-gray-700';
+                    
+                    const safeOpponentName = opponent.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    const buttonId = `btn-cache-h2h-${opponent.nameLower}`;
+                    const progressId = `progress-cache-h2h-${opponent.nameLower}`;
+                    
+                    let vsPlayerName = p1Name;
+                    // BUG FIX 4: Fix H2H self-linking logic
+                    if (opponent.nameLower === p1Name.toLowerCase()) {
+                       vsPlayerName = activePlayerNames[1] || p1Name;
+                    }
+                    
+                    const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.b=${opponent.name}${dateQueryPart}`;
+                    const vsLabel = `VS <span class='text-[9px] uppercase'>(${vsPlayerName})</span>`;
+                    
+                    const vsButtonHTML = `<a href="${vsLink}" target="_blank" class="ml-2 px-2 py-0.5 rounded bg-gray-200 text-blue-600 text-xs border border-gray-300 hover:bg-gray-300 hover:text-blue-700 dark:bg-gray-700 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white transition-colors inline-flex items-center gap-1" title="View games: ${vsPlayerName} vs ${opponent.name}">${vsLabel}</a>`;
+                    const pgnButtonHTML = `<button onclick="exportSingleOpponentPGN('${safeOpponentName}')" class="ml-1 p-1 text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400" title="Export PGN for H2H games vs ${opponent.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`;
+                    const cacheButtonHTML = `<button id="${buttonId}" class="add-opponent-btn ml-2 p-1 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="handleCacheOpponent('${safeOpponentName}', this, '${progressId}')" title="Fetch and cache this player's ${currentGameType} games">${ICON_ORIGINAL}</button>`;
+
+                    const lastPlayedDate = opponent.lastPlayed ? new Date(opponent.lastPlayed).toLocaleDateString() : '-';
+                    
+                    let rowHTML = `<td class="p-3 font-medium text-gray-900 dark:text-white"><div class="flex items-center justify-between"><div class="flex items-center">${ICON_H2H}<a href="https://lichess.org/@/${opponent.name}" target="_blank" class="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline font-bold">${opponent.name}</a><span class="text-xs text-gray-500 dark:text-gray-400 ml-2">(H2H)</span></div><div class="flex items-center">${vsButtonHTML}${pgnButtonHTML}<span id="${progressId}" class="text-xs text-gray-500 dark:text-gray-400 mx-2" style="min-width: 10px; text-align: right;"></span>${cacheButtonHTML}</div></div></td><td class="p-3 text-sm text-gray-600 dark:text-gray-400 text-center">${lastPlayedDate}</td>`;
+                    opponent.records.forEach(r => {
+                        if (r === 'self') { rowHTML += `<td class="p-3 text-center text-gray-400 dark:text-gray-500 font-bold">&mdash;</td>`; } 
+                        else if (r) { rowHTML += `<td class="p-3"><span class="text-green-600 dark:text-green-400 font-semibold">${r.w}</span> - <span class="text-red-600 dark:text-red-400 font-semibold">${r.l}</span> - <span class="text-gray-500 dark:text-gray-400">${r.d}</span></td>`; } 
+                        else { rowHTML += `<td class="p-3 text-gray-400 dark:text-gray-500">-</td>`; }
+                    });
+                    const recordCellsDrawn = opponent.records.length;
+                    for (let i = recordCellsDrawn; i < 4; i++) { rowHTML += `<td class="p-3 text-gray-400 dark:text-gray-500">-</td>`; }
+                    tr.innerHTML = rowHTML;
+                    fragment.appendChild(tr);
+                });
+            }
+
+            opponentsData.forEach(opponent => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border-b dark:border-gray-700';
+                const safeOpponentName = opponent.name.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
+                const buttonId = `btn-cache-${opponent.nameLower}`;
+                const progressId = `progress-cache-${opponent.nameLower}`;
+                let vsLinkPlayerIndex = 0;
+                for(let i=0; i < opponent.records.length; i++) {
+                    const r = opponent.records[i];
+                    if(r && (r.w + r.l + r.d) > 0) { vsLinkPlayerIndex = i; break; }
+                }
+                const vsPlayerName = activePlayerNames[vsLinkPlayerIndex];
+                const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.b=${opponent.name}${dateQueryPart}`;
+                const vsLabel = isSinglePlayerMode ? "VS" : `VS <span class='text-[9px] uppercase'>(${vsPlayerName})</span>`;
+                const vsButtonHTML = `<a href="${vsLink}" target="_blank" class="ml-2 px-2 py-0.5 rounded bg-gray-200 text-blue-600 text-xs border border-gray-300 hover:bg-gray-300 hover:text-blue-700 dark:bg-gray-700 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white transition-colors inline-flex items-center gap-1" title="View games: ${vsPlayerName} vs ${opponent.name}">${vsLabel}</a>`;
+                const pgnButtonHTML = `<button onclick="exportSingleOpponentPGN('${safeOpponentName}')" class="ml-1 p-1 text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400" title="Export PGN for games vs ${opponent.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`;
+                const buttonHTML = `<button id="${buttonId}" class="add-opponent-btn ml-2 p-1 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="handleCacheOpponent('${safeOpponentName}', this, '${progressId}')" title="Fetch and cache this player's ${currentGameType} games">${ICON_ORIGINAL}</button>`;
+                const lichessLink = `https://lichess.org/@/${opponent.name}`;
+                const opponentNameHTML = `<a href="${lichessLink}" target="_blank" class="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline font-bold">${opponent.name}</a>`;
+                const lastPlayedDate = opponent.lastPlayed ? new Date(opponent.lastPlayed).toLocaleDateString() : '-';
+                let rowHTML = `<td class="p-3 font-medium text-gray-900 dark:text-white"><div class="flex items-center justify-between">${opponentNameHTML}<div class="flex items-center">${vsButtonHTML}${pgnButtonHTML}<span id="${progressId}" class="text-xs text-gray-500 dark:text-gray-400 mx-2" style="min-width: 10px; text-align: right;"></span>${buttonHTML}</div></div></td><td class="p-3 text-sm text-gray-600 dark:text-gray-400 text-center">${lastPlayedDate}</td>`;
+                opponent.records.forEach(r => {
+                    if (isSinglePlayerMode && opponent.records.indexOf(r) > 0) return;
+                    if (r) { rowHTML += `<td class="p-3"><span class="text-green-600 dark:text-green-400 font-semibold">${r.w}</span> - <span class="text-red-600 dark:text-red-400 font-semibold">${r.l}</span> - <span class="text-gray-500 dark:text-gray-400">${r.d}</span></td>`; } 
+                    else { rowHTML += `<td class="p-3 text-gray-400 dark:text-gray-500">-</td>`; }
+                });
+                if (!isSinglePlayerMode) {
+                    const recordCellsDrawn = opponent.records.length;
+                    for (let i = recordCellsDrawn; i < 4; i++) { rowHTML += `<td class="p-3 text-gray-400 dark:text-gray-500">-</td>`; }
+                }
+                tr.innerHTML = rowHTML;
+                fragment.appendChild(tr);
+            });
+            resultsBody.appendChild(fragment);
+        }
+
+        // --- PGN Export Functions ---
+
+        function exportToPGN() {
+            if (!currentCommonOpponents || currentCommonOpponents.length === 0) {
+                showModal("No opponents/games to export.");
+                return;
+            }
+            
+            const rated = ratedCheck.checked;
+            const unrated = unratedCheck.checked;
+            const tournamentOnly = tournamentCheck.checked;
+            const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
+            let startTs = 0, endTs = 0;
+            let dateCutoff = 0;
+            let isDateRange = false;
+            const now = Date.now();
+
+             // Filter Logic duplicate from reAnalyzeAndDisplay
+            if (dateFilterRadioValue === 'range') {
+                isDateRange = true;
+                const sDate = startDateInput.value ? new Date(startDateInput.value) : null;
+                const eDate = endDateInput.value ? new Date(endDateInput.value) : null;
+                if (sDate) startTs = sDate.getTime();
+                if (eDate) { eDate.setHours(23, 59, 59, 999); endTs = eDate.getTime(); } 
+                else endTs = now;
+            } else if (dateFilterRadioValue === 'custom') {
+                 const d = parseInt(customDaysInput.value, 10) || 0;
+                 if (d > 0) dateCutoff = now - (d * 24 * 60 * 60 * 1000);
+            } else if (dateFilterRadioValue !== 'all') {
+                const d = parseInt(dateFilterRadioValue, 10);
+                dateCutoff = now - (d * 24 * 60 * 60 * 1000);
+            }
+
+            let allGames = [];
+            const addedGameIds = new Set();
+            
+            // Create Set of visible opponents for filtering
+            const visibleOpponents = new Set(currentCommonOpponents.map(o => o.nameLower));
+
+            currentPlayersData.forEach(playerData => {
+                if (!playerData || !playerData.data) return;
+                
+                Object.keys(playerData.data).forEach(oppNameLower => {
+                    if (!visibleOpponents.has(oppNameLower)) return;
+
+                    const oppData = playerData.data[oppNameLower];
+                    if (!oppData || !oppData.games) return;
+
+                    oppData.games.forEach(game => {
+                        if (addedGameIds.has(game.id)) return;
+                        
+                        if (tournamentOnly && !game.tournament) return;
+                        
+                        if (isDateRange) {
+                            if (game.date < startTs || game.date > endTs) return;
+                        } else if (dateCutoff > 0) {
+                            if (game.date < dateCutoff) return;
+                        }
+
+                        if ((rated && game.rated) || (unrated && !game.rated)) {
+                            allGames.push(game);
+                            addedGameIds.add(game.id);
+                        }
+                    });
+                });
+            });
+            
+            if (allGames.length === 0) {
+                showModal("No games matched the criteria for export.");
+                return;
+            }
+            
+            downloadPGN(allGames, "lichess_common_opponents.pgn");
+        }
+
+        function exportSingleOpponentPGN(opponentName) {
+            const oppNameLower = opponentName.toLowerCase();
+            const rated = ratedCheck.checked;
+            const unrated = unratedCheck.checked;
+            const tournamentOnly = tournamentCheck.checked;
+            const dateFilterRadioValue = document.querySelector('input[name="dateFilter"]:checked').value;
+            let startTs = 0, endTs = 0;
+            let dateCutoff = 0;
+            let isDateRange = false;
+            const now = Date.now();
+
+            if (dateFilterRadioValue === 'range') {
+                isDateRange = true;
+                const sDate = startDateInput.value ? new Date(startDateInput.value) : null;
+                const eDate = endDateInput.value ? new Date(endDateInput.value) : null;
+                if (sDate) startTs = sDate.getTime();
+                if (eDate) { eDate.setHours(23, 59, 59, 999); endTs = eDate.getTime(); } 
+                else endTs = now;
+            } else if (dateFilterRadioValue === 'custom') {
+                 const d = parseInt(customDaysInput.value, 10) || 0;
+                 if (d > 0) dateCutoff = now - (d * 24 * 60 * 60 * 1000);
+            } else if (dateFilterRadioValue !== 'all') {
+                const d = parseInt(dateFilterRadioValue, 10);
+                dateCutoff = now - (d * 24 * 60 * 60 * 1000);
+            }
+
+            let allGames = [];
+            const addedGameIds = new Set();
+
+            // Check Head to Head Cache first
+            // Check if this opponent IS one of the main players (H2H scenario)
+            const h2hPlayerIndex = currentPlayersData.findIndex(p => p && p.name.toLowerCase() === oppNameLower);
+
+            currentPlayersData.forEach((playerData, idx) => {
+                if (!playerData) return;
+                
+                // Standard lookup
+                if (playerData.data && playerData.data[oppNameLower]) {
+                    playerData.data[oppNameLower].games.forEach(processGame);
+                }
+                
+                // Inverse lookup for H2H: Check if the opponent (who is also a main player) has games against THIS player
+                if (h2hPlayerIndex !== -1 && idx !== h2hPlayerIndex) {
+                     const mainPlayerNameLower = playerData.name.toLowerCase();
+                     const opponentIsMainData = currentPlayersData[h2hPlayerIndex];
+                     if (opponentIsMainData && opponentIsMainData.data && opponentIsMainData.data[mainPlayerNameLower]) {
+                         opponentIsMainData.data[mainPlayerNameLower].games.forEach(processGame);
+                     }
+                }
+            });
+
+            function processGame(game) {
+                 if (addedGameIds.has(game.id)) return;
+                 if (tournamentOnly && !game.tournament) return;
+                 if (isDateRange) {
+                     if (game.date < startTs || game.date > endTs) return;
+                 } else if (dateCutoff > 0) {
+                     if (game.date < dateCutoff) return;
+                 }
+                 if ((rated && game.rated) || (unrated && !game.rated)) {
+                     allGames.push(game);
+                     addedGameIds.add(game.id);
+                 }
+            }
+
+            if (allGames.length === 0) {
+                showModal("No games found for this opponent matching current filters.");
+                return;
+            }
+
+            downloadPGN(allGames, `vs_${oppNameLower}.pgn`);
+        }
+
+        function downloadPGN(games, filename) {
+            let pgnContent = "";
+            games.sort((a, b) => a.date - b.date); // Sort chronologically
+
+            games.forEach(game => {
+                const dateObj = new Date(game.date);
+                const dateStr = dateObj.toISOString().split('T')[0].replace(/-/g, '.');
+                const timeStr = dateObj.toISOString().split('T')[1].split('.')[0];
+                
+                pgnContent += `[Event "Lichess Game"]\n`;
+                pgnContent += `[Site "https://lichess.org/${game.id}"]\n`;
+                pgnContent += `[Date "${dateStr}"]\n`;
+                pgnContent += `[White "${game.white}"]\n`;
+                pgnContent += `[Black "${game.black}"]\n`;
+                pgnContent += `[Result "${game.score}"]\n`;
+                pgnContent += `[UTCDate "${dateStr}"]\n`;
+                pgnContent += `[UTCTime "${timeStr}"]\n`;
+                if (game.rated) pgnContent += `[EventDate "${dateStr}"]\n`;
+                pgnContent += `[Variant "Standard"]\n`; 
+                if (game.oppRating) {
+                    // Try to infer who is who. 'oppRating' is the opponent relative to the player who fetched it.
+                    // But since we have White and Black names, we don't know exactly who fetched it here easily.
+                    // However, we can leave standard Elo tags out or put '?' if we aren't sure.
+                    // For simplicity/correctness, we can omit unless we are sure.
+                    // Or we can dump the known rating into a comment/tag.
+                }
+                pgnContent += `\n${game.moves}\n\n`;
+            });
+            
+            const blob = new Blob([pgnContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Missing cache handler function (referenced in renderTable)
+        async function handleCacheOpponent(opponentName, btnElement, progressElementId) {
+             const gameType = gameTypeSelect.value;
+             const progressEl = document.getElementById(progressElementId);
+             
+             btnElement.disabled = true;
+             btnElement.innerHTML = ICON_LOADING;
+             
+             try {
+                 await getPlayerData(opponentName, gameType, { 
+                     textContent: (txt) => { if(progressEl) progressEl.textContent = txt.replace(`Updating ${opponentName}`, '').replace('...', ''); } 
+                 }, true, '300');
+                 
+                 btnElement.innerHTML = ICON_SUCCESS;
+                 if(progressEl) progressEl.textContent = "Done";
+                 
+                 // Refresh logic implies we might want to reload everything, but that's heavy.
+                 // Just let the user know it's cached. They can now add this player to the main slots.
+                 await populateCachedPlayersDatalist();
+                 
+             } catch (e) {
+                 console.error(e);
+                 btnElement.innerHTML = ICON_ERROR;
+                 if(progressEl) progressEl.textContent = "Error";
+             } finally {
+                 setTimeout(() => {
+                     btnElement.disabled = false;
+                     btnElement.innerHTML = ICON_ORIGINAL;
+                     if(progressEl) progressEl.textContent = "";
+                 }, 3000);
+             }
+        }
+    </script>
+</body>
+</html>
