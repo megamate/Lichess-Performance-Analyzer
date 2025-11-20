@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lichess Performance Analyzer v0.55</title>
+    <title>Lichess Performance Analyzer v0.56</title>
     <script src="https://cdn.tailwindcss.com/3.4.14"></script>
     
     <script>
@@ -43,7 +43,10 @@
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
 
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Lichess Performance Analyzer</h1>
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Lichess Performance Analyzer</h1>
+                <span class="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide self-start mt-2">Unofficial</span>
+            </div>
             <p class="text-gray-600 dark:text-gray-400">Find opponents that 2, 3, or 4 players have all played against.</p>
         </header>
 
@@ -133,7 +136,7 @@
                                 <input type="checkbox" id="unratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
                                 <span>Unrated</span>
                             </label>
-                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer" title="Treats opponents as max 400 points difference">
+                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer" title="Treats opponents as max 400 points difference (FIDE Rule)">
                                 <input type="checkbox" id="rule400Check" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-green-500 focus:ring-green-500" checked>
                                 <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">400-Pt Rule</span>
                             </label>
@@ -275,6 +278,10 @@
                         </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="text-center mt-8 pb-4 text-xs text-gray-500 dark:text-gray-400">
+            <p>This tool is not affiliated with, endorsed by, or sponsored by Lichess.org.</p>
         </div>
 
     </div>
