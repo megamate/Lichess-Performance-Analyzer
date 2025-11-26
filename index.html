@@ -1012,8 +1012,11 @@
                     }
                 }
                 if (cachedGamesCount > 0) {
-                    since = mostRecentGameDate + 1; 
-                    statusElement.textContent = `Updating ${username} (found ${cachedGamesCount} cached)...`;
+                    // SAFEGUARD: Backtrack 24 hours to catch overlapping games (Correspondence)
+                    // or games missed due to race conditions.
+                    // The deduplication logic in 'mergedOpponentsMap' handles the overlaps.
+                    since = Math.max(0, mostRecentGameDate - (24 * 60 * 60 * 1000));
+                    statusElement.textContent = `Updating ${username} (checking overlaps)...`;
                 } else {
                     oldestGameDate = 0; 
                 }
