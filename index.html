@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lichess Performance Analyzer v0.59</title>
+    <title>Lichess Performance Analyzer v0.60</title>
     <script src="https://cdn.tailwindcss.com/3.4.14"></script>
     
     <script>
@@ -1050,10 +1050,15 @@
                     if (!mergedOpponentsMap[opponentLower].games) {
                         mergedOpponentsMap[opponentLower].games = [];
                     }
-                    const existingGameIds = new Set(mergedOpponentsMap[opponentLower].games.map(g => g.id));
+                    // ROBUST MATCHING: Use ID if available, fallback to composite key (timestamp+players)
+                    // This prevents games with missing/undefined IDs from being collapsed into one.
+                    const existingGameIds = new Set(
+                        mergedOpponentsMap[opponentLower].games.map(g => g.id || `${g.date}_${g.white}_${g.black}`)
+                    );
                     
                     for (const newGame of newOpponentData.games) {
-                        if (!existingGameIds.has(newGame.id)) {
+                        const newKey = newGame.id || `${newGame.date}_${newGame.white}_${newGame.black}`;
+                        if (!existingGameIds.has(newKey)) {
                             mergedOpponentsMap[opponentLower].games.push(newGame);
                             newGamesAdded++;
                         }
@@ -1083,9 +1088,15 @@
                             newGamesAdded += newOpponentData.games.length;
                         } else {
                             if (!mergedOpponentsMap[opponentLower].games) mergedOpponentsMap[opponentLower].games = [];
-                            const existingGameIds = new Set(mergedOpponentsMap[opponentLower].games.map(g => g.id));
+                            
+                            // Apply same robust matching for backfill
+                            const existingGameIds = new Set(
+                                mergedOpponentsMap[opponentLower].games.map(g => g.id || `${g.date}_${g.white}_${g.black}`)
+                            );
+                            
                             for (const newGame of newOpponentData.games) {
-                                if (!existingGameIds.has(newGame.id)) {
+                                const newKey = newGame.id || `${newGame.date}_${newGame.white}_${newGame.black}`;
+                                if (!existingGameIds.has(newKey)) {
                                     mergedOpponentsMap[opponentLower].games.push(newGame);
                                     newGamesAdded++;
                                 }
@@ -1255,13 +1266,18 @@
             const blackPlayer = gameJson.players?.black?.user?.name || 'Anonymous';
             
             let result;
-            if (gameJson.status === 'draw' || gameJson.status === 'stalemate') {
-                result = '1/2-1/2';
-            } else if (gameJson.winner === 'white') {
+            // ROBUST RESULT PARSING:
+            // Previously, we skipped games if specific conditions weren't met.
+            // Now we try to capture the winner even if status is non-standard (e.g. variantEnd, cheat, etc)
+            if (gameJson.winner === 'white') {
                 result = '1-0';
             } else if (gameJson.winner === 'black') {
                 result = '0-1';
+            } else if (gameJson.status === 'draw' || gameJson.status === 'stalemate' || gameJson.status === 'timeout' || gameJson.status === 'outoftime') {
+                 // Fallback for draws or times where winner wasn't declared above (unlikely for time, but good for safety)
+                result = '1/2-1/2';
             } else {
+                // If we really can't determine a result (e.g. Aborted, NoStart), we skip.
                 return; 
             }
 
@@ -1472,10 +1488,14 @@
                         const gamesFromMain = mainPlayer.data[otherPlayerLower]?.games || [];
                         const gamesFromOther = otherPlayer.data[mainPlayerLower]?.games || [];
                         
-                        // Deduplicate by Game ID
+                        // Deduplicate by Game ID OR Composite Key if ID is missing (Robust Matching)
                         const gameMap = new Map();
-                        gamesFromMain.forEach(g => gameMap.set(g.id, g));
-                        gamesFromOther.forEach(g => gameMap.set(g.id, g));
+                        
+                        // Helper to generate a robust key
+                        const getGameKey = (g) => g.id || `${g.date}_${g.white}_${g.black}`;
+                        
+                        gamesFromMain.forEach(g => gameMap.set(getGameKey(g), g));
+                        gamesFromOther.forEach(g => gameMap.set(getGameKey(g), g));
                         
                         const mergedGames = Array.from(gameMap.values());
                         
