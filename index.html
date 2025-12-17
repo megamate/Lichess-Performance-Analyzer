@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lichess Performance Analyzer v0.61</title>
+    <title>Lichess Performance Analyzer v0.67</title>
     <script src="https://cdn.tailwindcss.com/3.4.14"></script>
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
       // Force dark mode no matter what the OS says
@@ -45,7 +47,7 @@
         <header class="text-center mb-8">
             <div class="flex items-center justify-center gap-3 mb-2">
                 <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Lichess Performance Analyzer</h1>
-                <span class="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide self-start mt-2">Unofficial</span>
+                <span class="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide self-start mt-2">Unofficial  v0.67</span>
             </div>
             <p class="text-gray-600 dark:text-gray-400">Find opponents that 2, 3, or 4 players have all played against.</p>
         </header>
@@ -56,7 +58,7 @@
                 <div>
                     <label for="player1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 1 (Main)</label>
                     <div class="relative">
-                        <input type="text" id="player1" list="player1-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., DrNykterstein">
+                        <input type="text" id="player1" list="player1-list" autocomplete="off" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., DrNykterstein">
                         <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player1" aria-label="Clear player 1">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -66,7 +68,7 @@
                 <div>
                     <label for="player2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 2</label>
                     <div class="relative">
-                        <input type="text" id="player2" list="player2-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Alireza2003">
+                        <input type="text" id="player2" list="player2-list" autocomplete="off" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Alireza2003">
                         <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player2" aria-label="Clear player 2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -76,7 +78,7 @@
                  <div>
                     <label for="player3" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 3</label>
                     <div class="relative">
-                        <input type="text" id="player3" list="player3-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Agadmator">
+                        <input type="text" id="player3" list="player3-list" autocomplete="off" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Agadmator">
                         <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player3" aria-label="Clear player 3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -86,7 +88,7 @@
                  <div>
                     <label for="player4" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 4</label>
                     <div class="relative">
-                        <input type="text" id="player4" list="player4-list" autocomplete="off" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Chess-Network">
+                        <input type="text" id="player4" list="player4-list" autocomplete="off" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8" placeholder="e.g., Chess-Network">
                         <button class="clear-input-btn absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-800 dark:text-gray-500 dark:hover:text-white hidden" data-target="player4" aria-label="Clear player 4">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -98,7 +100,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="gameType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Game Type</label>
-                    <select id="gameType" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="gameType" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="blitz">Blitz</option>
                         <option value="bullet">Bullet</option>
                         <option value="rapid">Rapid</option>
@@ -110,7 +112,7 @@
                 <div>
                     <label for="maxGames" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Games to Fetch</label>
                     <div class="flex gap-2">
-                        <select id="maxGames" class="w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="maxGames" class="save-state w-full bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="300" selected>300</option>
                             <option value="1000">1000</option>
                             <option value="3000">3000</option>
@@ -118,7 +120,7 @@
                             <option value="10000">10000</option>
                             <option value="custom">Custom</option>
                         </select>
-                        <input type="number" id="customMaxGames" class="hidden w-24 bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Qty" min="1" max="10000" value="300">
+                        <input type="number" id="customMaxGames" class="save-state hidden w-24 bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Qty" min="1" max="10000" value="300">
                     </div>
                 </div>
             </div>
@@ -129,15 +131,15 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Game Filters</label>
                         <div class="flex flex-wrap gap-4">
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="ratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
+                                <input type="checkbox" id="ratedCheck" class="save-state rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
                                 <span>Rated</span>
                             </label>
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="unratedCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                <input type="checkbox" id="unratedCheck" class="save-state rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
                                 <span>Unrated</span>
                             </label>
                              <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer" title="Treats opponents as max 400 points difference (FIDE Rule)">
-                                <input type="checkbox" id="rule400Check" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-green-500 focus:ring-green-500" checked>
+                                <input type="checkbox" id="rule400Check" class="save-state rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-green-500 focus:ring-green-500" checked>
                                 <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">400-Pt Rule</span>
                             </label>
                         </div>
@@ -146,15 +148,15 @@
                              <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tournaments:</span>
                              <div class="flex flex-wrap gap-4 mt-1">
                                 <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                    <input type="radio" name="tournamentFilter" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                    <input type="radio" name="tournamentFilter" value="all" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
                                     <span>All</span>
                                 </label>
                                 <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                    <input type="radio" name="tournamentFilter" value="only" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-purple-500 focus:ring-purple-500">
+                                    <input type="radio" name="tournamentFilter" value="only" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-purple-500 focus:ring-purple-500">
                                     <span>Only</span>
                                 </label>
                                 <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                    <input type="radio" name="tournamentFilter" value="exclude" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-red-500 focus:ring-red-500">
+                                    <input type="radio" name="tournamentFilter" value="exclude" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-red-500 focus:ring-red-500">
                                     <span>Exclude</span>
                                 </label>
                             </div>
@@ -165,32 +167,46 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Range (UTC)</label>
                         <div id="date-filter-group" class="flex flex-wrap gap-x-4 gap-y-2">
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="dateFilter" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <input type="radio" name="dateFilter" value="all" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
                                 <span>All</span>
                             </label>
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="dateFilter" value="90" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                <input type="radio" name="dateFilter" value="90" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
                                 <span>Last 90d</span>
                             </label>
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="dateFilter" value="30" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <input type="radio" name="dateFilter" value="30" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
                                 <span>Last 30d</span>
                             </label>
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="dateFilter" value="custom" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <input type="radio" name="dateFilter" value="custom" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
                                 <span>Days:</span>
-                                <input type="text" id="customDays" class="w-12 bg-gray-100 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" placeholder="#" value="7" disabled>
+                                <input type="text" id="customDays" class="save-state w-12 bg-gray-100 border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" placeholder="#" value="7" disabled>
                             </label>
                              <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="dateFilter" value="range" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <input type="radio" name="dateFilter" value="range" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
                                 <span>Range</span>
                             </label>
                         </div>
                         
                         <div id="date-range-inputs" class="hidden mt-2 flex items-center space-x-2">
-                            <input type="date" id="startDate" class="bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="date" id="startDate" class="save-state bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <span class="text-gray-500 dark:text-gray-400">-</span>
-                            <input type="date" id="endDate" class="bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="date" id="endDate" class="save-state bg-gray-100 border border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-md p-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div class="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chart X-Axis</label>
+                             <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="radio" name="chartMode" value="date" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500" checked>
+                                    <span>By Date</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="radio" name="chartMode" value="rating" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+                                    <span>By Rating</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,16 +218,16 @@
                     <div class="flex flex-col gap-2">
                         <div id="opponent-mode-group" class="flex space-x-4">
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="opponentMode" value="common" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <input type="radio" name="opponentMode" value="common" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span title="Opponents played by Player 1 AND (Player 2 OR Player 3...)">Common (P1 + Any)</span>
                             </label>
                             <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer">
-                                <input type="radio" name="opponentMode" value="all" class="rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
+                                <input type="radio" name="opponentMode" value="all" class="save-state rounded-full bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" checked>
                                 <span title="Opponents played by at least 2 of any selected players">All games</span>
                             </label>
                         </div>
                         <label class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 cursor-pointer ml-1">
-                            <input type="checkbox" id="strictModeCheck" class="rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <input type="checkbox" id="strictModeCheck" class="save-state rounded bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span>Played by all players</span>
                         </label>
                     </div>
@@ -219,9 +235,14 @@
             </div>
             
             <div class="grid grid-cols-1 gap-2 mt-4">
-                <button id="findBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
-                    Fetch Games
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button id="findBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                        Fetch Games
+                    </button>
+                    <button id="refreshBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
+                        Refresh
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button id="deletePlayersBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out">
                         Delete Player(s)
@@ -234,6 +255,7 @@
             <p id="cache-status" class="text-xs text-gray-600 dark:text-gray-500 text-center mt-2 h-3"></p>
         </div>
 
+        
         <div class="flex flex-col items-center gap-2 mb-6">
             <div class="flex justify-center">
                  <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'W7W71OPIKZ');kofiwidget2.draw();</script>
@@ -258,6 +280,13 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 italic">
                     Note: Please allow up to 15 minutes for recent games to update in the Lichess API.
                 </p>
+            </div>
+
+            <!-- Chart Container -->
+            <div id="chart-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                <div class="relative h-64 sm:h-80 w-full">
+                    <canvas id="ratingChart"></canvas>
+                </div>
             </div>
 
             <div id="sorting-controls" class="mb-4">
@@ -384,6 +413,7 @@
 
         // DOM Elements
         const findBtn = document.getElementById('findBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
         const deletePlayersBtn = document.getElementById('deletePlayersBtn');
         const clearCacheBtn = document.getElementById('clearCacheBtn');
         const exportPgnBtn = document.getElementById('exportPgnBtn');
@@ -429,6 +459,8 @@
         const dateRangeInputs = document.getElementById('date-range-inputs'); 
         const startDateInput = document.getElementById('startDate'); 
         const endDateInput = document.getElementById('endDate'); 
+        const chartContainer = document.getElementById('chart-container');
+        const chartCanvas = document.getElementById('ratingChart');
 
         // ICONS
         const ICON_LOADING = `<svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
@@ -442,9 +474,11 @@
         let activePlayerNames = [];
         let currentPlayersData = [];
         let wasSinglePlayerMode = false; 
+        let ratingChartInstance = null;
 
         // Event Listeners
         findBtn.addEventListener('click', handleFetchGames);
+        refreshBtn.addEventListener('click', handleRefresh); // New Listener
         deletePlayersBtn.addEventListener('click', handleConfirmDeletePlayers);
         clearCacheBtn.addEventListener('click', handleConfirmClearCache); 
         exportPgnBtn.addEventListener('click', () => exportToPGN());
@@ -456,6 +490,10 @@
         startDateInput.addEventListener('change', () => reAnalyzeAndDisplay(false)); 
         endDateInput.addEventListener('change', () => reAnalyzeAndDisplay(false)); 
         strictModeCheck.addEventListener('change', () => reAnalyzeAndDisplay(false));
+
+        document.querySelectorAll('input[name="chartMode"]').forEach(r => {
+            r.addEventListener('change', () => reAnalyzeAndDisplay(false));
+        });
 
         // Custom Max Games Logic
         maxGamesSelect.addEventListener('change', () => {
@@ -474,7 +512,15 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Set Default Dates
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.value = today;
+            endDateInput.value = today;
+
             try {
+                // Initialize DB and load settings
+                loadSettings();
+                
                 await dbHelper.initDB();
                 console.log("Database initialized.");
                 await populateCachedPlayersDatalist();
@@ -560,6 +606,7 @@
                             input.value = '';
                             input.focus();
                             e.currentTarget.classList.add('hidden');
+                            input.dispatchEvent(new Event('change')); // Trigger save
                         }
                         checkSinglePlayerMode();
                     });
@@ -588,11 +635,108 @@
                 wasSinglePlayerMode = true; // Assume start is single
                 checkSinglePlayerMode(true); // Force initial check
 
+                // Attach Save listeners
+                attachSaveListeners();
+
             } catch (e) {
                 console.error("Failed to initialize database", e);
                 showModal("Could not initialize the local database. Caching will not work.");
             }
         });
+
+        // --- Persistence Logic ---
+        function attachSaveListeners() {
+            const saveElements = document.querySelectorAll('.save-state');
+            saveElements.forEach(el => {
+                el.addEventListener('change', saveSettings);
+                // For text inputs, also save on input (debounced or simple)
+                if (el.type === 'text' || el.type === 'number') {
+                    el.addEventListener('input', saveSettings);
+                }
+            });
+            // Radio buttons need specific handling since they don't all fire 'change' when one is selected
+            const radios = document.querySelectorAll('input[type="radio"]');
+            radios.forEach(r => r.addEventListener('change', saveSettings));
+        }
+
+        function saveSettings() {
+            const settings = {};
+            
+            // Text/Number Inputs and Selects
+            document.querySelectorAll('input.save-state[type="text"], input.save-state[type="number"], input.save-state[type="date"], select.save-state').forEach(el => {
+                settings[el.id] = el.value;
+            });
+            
+            // Checkboxes
+            document.querySelectorAll('input.save-state[type="checkbox"]').forEach(el => {
+                settings[el.id] = el.checked;
+            });
+
+            // Radio Groups
+            ['tournamentFilter', 'dateFilter', 'opponentMode', 'chartMode'].forEach(name => {
+                const checked = document.querySelector(`input[name="${name}"]:checked`);
+                if (checked) {
+                    settings[name] = checked.value;
+                }
+            });
+
+            localStorage.setItem('lichess_analyzer_settings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('lichess_analyzer_settings');
+            if (!saved) return;
+
+            try {
+                const settings = JSON.parse(saved);
+                
+                // Restore Text/Number/Select/Date
+                Object.keys(settings).forEach(id => {
+                    const el = document.getElementById(id);
+                    // Handle Radio Groups stored by name
+                    if (!el && ['tournamentFilter', 'dateFilter', 'opponentMode', 'chartMode'].includes(id)) {
+                        const radio = document.querySelector(`input[name="${id}"][value="${settings[id]}"]`);
+                        if (radio) {
+                            radio.checked = true;
+                            // Trigger logic associated with radio change
+                            if (id === 'dateFilter' && settings[id] === 'custom') {
+                                document.getElementById('customDays').disabled = false;
+                                document.getElementById('date-range-inputs').classList.add('hidden');
+                            } else if (id === 'dateFilter' && settings[id] === 'range') {
+                                document.getElementById('date-range-inputs').classList.remove('hidden');
+                            } else if (id === 'dateFilter') {
+                                document.getElementById('customDays').disabled = true;
+                                document.getElementById('date-range-inputs').classList.add('hidden');
+                            }
+                        }
+                        return;
+                    }
+                    
+                    if (el) {
+                        if (el.type === 'checkbox') {
+                            el.checked = settings[id];
+                        } else {
+                            el.value = settings[id];
+                            // Special UI logic for inputs
+                            if (id === 'maxGames' && el.value === 'custom') {
+                                document.getElementById('customMaxGames').classList.remove('hidden');
+                            }
+                        }
+                    }
+                });
+                
+                // Show clear buttons if inputs restored
+                playerInputs.forEach(input => {
+                    const clearBtn = document.querySelector(`.clear-input-btn[data-target="${input.id}"]`);
+                    if (input.value.length > 0 && clearBtn) {
+                        clearBtn.classList.remove('hidden');
+                    }
+                });
+
+            } catch (e) {
+                console.error("Error loading settings:", e);
+            }
+        }
 
         function checkSinglePlayerMode(force = false) {
             const p1Name = playerInputs[0].value.trim();
@@ -610,9 +754,9 @@
 
             if (isSinglePlayerMode) {
                 // Only reset filters if transitioning to Single Player
-                ratedCheck.checked = true;
+                // ratedCheck.checked = true; // Don't override user saved setting
                 ratedCheck.disabled = false; 
-                unratedCheck.checked = true; 
+                // unratedCheck.checked = true; // Don't override
                 
                 findBtn.textContent = 'Fetch Games';
                 headerH1.textContent = 'Lichess Performance Analyzer';
@@ -626,7 +770,7 @@
             } else {
                 // Only reset filters if transitioning to Multiplayer
                 ratedCheck.disabled = false;
-                ratedCheck.checked = true; 
+                // ratedCheck.checked = true; // Don't override
 
                 findBtn.textContent = 'Fetch Games';
                 headerH1.textContent = 'Lichess Performance Analyzer';
@@ -789,6 +933,108 @@
              };
         }
 
+        async function handleRefresh() {
+             const playerNames = playerInputs.map(input => input.value.trim()).filter(Boolean);
+            const p1Name = playerInputs[0].value.trim();
+            const p2Name = playerInputs[1].value.trim();
+            const otherPlayerNames = playerInputs.slice(2).map(input => input.value.trim()).filter(Boolean);
+
+            const isSinglePlayerMode = p1Name !== '' && p2Name === '' && otherPlayerNames.length === 0;
+            const isMultiPlayerMode = p1Name !== '' && p2Name !== '';
+            
+            const opponentModeValue = document.querySelector('input[name="opponentMode"]:checked').value;
+
+            // Logic copied from handleFetchGames to ensure valid state before refresh
+            if (isSinglePlayerMode) {
+            } else if (opponentModeValue === 'common' && !isMultiPlayerMode) {
+                showModal('Please enter at least Player 1 and Player 2 for "Common" mode.');
+                return;
+            } else if (opponentModeValue === 'all' && playerNames.length < 2) {
+                showModal('Please enter at least two players for "All (Played by 2+)" mode.');
+                return;
+            } else if (!isSinglePlayerMode && playerNames.length < 2) {
+                 showModal('Please enter at least two players.');
+                 return;
+            }
+
+            activePlayerNames = playerNames;
+            const gameType = gameTypeSelect.value;
+            
+            // UI State
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = 'Refreshing...';
+            findBtn.disabled = true;
+            deletePlayersBtn.disabled = true;
+            resultsContainer.classList.add('hidden');
+            chartContainer.classList.add('hidden');
+            resultsBody.innerHTML = '';
+            
+            statusElements.forEach((el) => el.textContent = '');
+
+            try {
+                // Modified Batch processing for Local Refresh
+                const BATCH_SIZE = 2;
+                currentPlayersData = new Array(playerNames.length).fill(null);
+
+                for (let i = 0; i < playerNames.length; i += BATCH_SIZE) {
+                    const batch = playerNames.slice(i, i + BATCH_SIZE);
+                    const batchPromises = batch.map((name, batchIndex) => {
+                        const globalIndex = i + batchIndex;
+                        const statusElement = statusElements[globalIndex];
+                        statusElement.textContent = `Loading ${name} from cache...`;
+                        
+                        // Pass 'true' for skipNetwork argument (last param)
+                        return getPlayerData(name, gameType, statusElement, false, '300', true)
+                            .then(data => {
+                                if (data) {
+                                    currentPlayersData[globalIndex] = {
+                                        name: name,
+                                        data: data.opponentsMap,
+                                        rating: data.latestRating,
+                                        oldestGameDate: data.oldestGameDate
+                                    };
+                                }
+                            })
+                            .catch(e => {
+                                console.error(e);
+                                statusElement.textContent = `Error: ${e.message}`;
+                            });
+                    });
+                    await Promise.all(batchPromises);
+                }
+                
+                const successfulPlayers = [];
+                const successfulNames = [];
+                
+                currentPlayersData.forEach((p, index) => {
+                    if (p !== null) {
+                        successfulPlayers.push(p);
+                        successfulNames.push(playerNames[index]);
+                    } else {
+                        statusElements[index].textContent = "Not found in cache. Please Fetch.";
+                    }
+                });
+
+                currentPlayersData = successfulPlayers;
+                activePlayerNames = successfulNames;
+                
+                if (currentPlayersData.length > 0) {
+                    reAnalyzeAndDisplay(true);
+                } else {
+                     statusElements[0].textContent = "No data found in local cache. Please click Fetch Games.";
+                }
+
+            } catch (error) {
+                console.error('An error occurred during refresh:', error);
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = 'Refresh';
+                findBtn.disabled = false;
+                deletePlayersBtn.disabled = false;
+                checkSinglePlayerMode(true); 
+            }
+        }
+
         async function handleFetchGames() {
             const playerNames = playerInputs.map(input => input.value.trim()).filter(Boolean);
             const p1Name = playerInputs[0].value.trim();
@@ -836,8 +1082,10 @@
             
             findBtn.disabled = true;
             findBtn.textContent = 'Searching...';
+            refreshBtn.disabled = true;
             deletePlayersBtn.disabled = true;
             resultsContainer.classList.add('hidden');
+            chartContainer.classList.add('hidden'); // Hide chart initially
             resultsBody.innerHTML = '';
             
             // Reset status texts
@@ -917,6 +1165,7 @@
             } finally {
                 findBtn.disabled = false;
                 findBtn.textContent = 'Fetch Games';
+                refreshBtn.disabled = false;
                 checkSinglePlayerMode(true); // Force recheck mode based on input state
                 deletePlayersBtn.disabled = false;
                 await populateCachedPlayersDatalist();
@@ -985,16 +1234,403 @@
             
             const { common, totals, headToHeadData } = findCommonOpponents(currentPlayersData, rated, unrated, daysFilter, opponentModeValue, tournamentFilterValue, isDateRange, startTs, endTs, strictMode, use400Rule);
             
+            // Generate chart data (Always show if data exists)
+            if (currentPlayersData.length > 0) {
+                chartContainer.classList.remove('hidden');
+                updateRatingChart(currentPlayersData, {
+                    rated, unrated, daysFilter, isDateRange, startTs, endTs, tournamentFilterValue
+                });
+            } else {
+                chartContainer.classList.add('hidden');
+            }
+
             displayResults(activePlayerNames, common, totals, isSinglePlayerMode, headToHeadData, {isDateRange, startTs, daysFilter, dateFilterRadioValue, use400Rule, tournamentFilterValue}, shouldScroll);
         }
+        
+        // --- CHART GENERATION LOGIC ---
+        function updateRatingChart(allPlayersData, filterContext) {
+            if (!allPlayersData || allPlayersData.length === 0) return;
 
-        async function getPlayerData(username, perfType, statusElement, forceUpdate = false, maxGames = '300') {
+            const chartMode = document.querySelector('input[name="chartMode"]:checked').value;
+            const isRatingMode = (chartMode === 'rating');
+
+            // Shared Variables
+            const datasets = [];
+            let sortedLabels = [];
+            const playerBucketsMap = [];
+
+            const now = Date.now();
+            let dateCutoff = 0;
+            if (!filterContext.isDateRange && filterContext.daysFilter > 0) {
+                dateCutoff = now - filterContext.daysFilter * 24 * 60 * 60 * 1000;
+            }
+
+            // --- MODE A: DATE INTERVALS (By Day) ---
+            if (!isRatingMode) {
+                const globalDatesSet = new Set();
+                
+                allPlayersData.forEach((playerData, index) => {
+                    if (!playerData || !playerData.data) {
+                        playerBucketsMap[index] = {};
+                        return;
+                    }
+                    const buckets = {};
+
+                    Object.values(playerData.data).forEach(oppData => {
+                        if (!oppData.games) return;
+                        oppData.games.forEach(game => {
+                            // Filter Logic
+                            if (filterContext.tournamentFilterValue === 'only' && !game.tournament) return;
+                            if (filterContext.tournamentFilterValue === 'exclude' && game.tournament) return;
+                            if (filterContext.isDateRange) {
+                                if (game.date < filterContext.startTs || game.date > filterContext.endTs) return;
+                            } else if (dateCutoff > 0) {
+                                if (game.date < dateCutoff) return;
+                            }
+                            if ((filterContext.rated && game.rated) || (filterContext.unrated && !game.rated)) {
+                                
+                                // Convert timestamp to YYYY-MM-DD
+                                const dateObj = new Date(game.date);
+                                const dateKey = dateObj.toISOString().split('T')[0];
+                                
+                                globalDatesSet.add(dateKey);
+
+                                if (!buckets[dateKey]) {
+                                    buckets[dateKey] = { w: 0, l: 0, d: 0, total: 0, totalOppRating: 0 };
+                                }
+                                
+                                if (game.result === 'w') buckets[dateKey].w++;
+                                else if (game.result === 'l') buckets[dateKey].l++;
+                                else buckets[dateKey].d++;
+                                
+                                buckets[dateKey].total++;
+                                buckets[dateKey].totalOppRating += (game.oppRating || 1500);
+                            }
+                        });
+                    });
+                    playerBucketsMap[index] = buckets;
+                });
+
+                // Sort Dates
+                sortedLabels = Array.from(globalDatesSet).sort();
+
+                // Create Datasets
+                allPlayersData.forEach((player, index) => {
+                    if (!player) return;
+                    
+                    const dataPoints = sortedLabels.map((dateKey, labelIdx) => {
+                        const b = playerBucketsMap[index][dateKey];
+                        if (!b) return null; // Gap in data
+
+                        // Smoothing Logic (Target 20 games)
+                        let clusterStats = { ...b };
+                        const TARGET_GAMES = 20;
+
+                        if (clusterStats.total < TARGET_GAMES) {
+                            let radius = 1;
+                            let hitEdgeLeft = false, hitEdgeRight = false;
+                            while (clusterStats.total < TARGET_GAMES) {
+                                if (hitEdgeLeft && hitEdgeRight) break;
+                                
+                                // Look Left
+                                if (labelIdx - radius >= 0) {
+                                    const leftKey = sortedLabels[labelIdx - radius];
+                                    const leftBucket = playerBucketsMap[index][leftKey];
+                                    if (leftBucket) {
+                                        clusterStats.w += leftBucket.w; 
+                                        clusterStats.l += leftBucket.l; 
+                                        clusterStats.d += leftBucket.d;
+                                        clusterStats.total += leftBucket.total; 
+                                        clusterStats.totalOppRating += leftBucket.totalOppRating;
+                                    }
+                                } else { hitEdgeLeft = true; }
+                                
+                                // Look Right
+                                if (labelIdx + radius < sortedLabels.length) {
+                                    const rightKey = sortedLabels[labelIdx + radius];
+                                    const rightBucket = playerBucketsMap[index][rightKey];
+                                    if (rightBucket) {
+                                        clusterStats.w += rightBucket.w; 
+                                        clusterStats.l += rightBucket.l; 
+                                        clusterStats.d += rightBucket.d;
+                                        clusterStats.total += rightBucket.total; 
+                                        clusterStats.totalOppRating += rightBucket.totalOppRating;
+                                    }
+                                } else { hitEdgeRight = true; }
+                                
+                                radius++;
+                            }
+                        }
+
+                        const res = calculateFidePerformance({ 
+                            wins: clusterStats.w, draws: clusterStats.d, losses: clusterStats.l, games: clusterStats.total, totalOppRating: clusterStats.totalOppRating 
+                        });
+                        
+                        // Store meta for tooltip
+                        b.meta = { perf: res.perf, games: b.total, smoothedTotal: clusterStats.total }; 
+                        
+                        return res.perf === 'N/A' ? null : res.perf;
+                    });
+
+                    const colors = [
+                        { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
+                        { border: '#f97316', bg: 'rgba(249, 115, 22, 0.15)' },
+                        { border: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
+                        { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' }
+                    ];
+                    const color = colors[index % colors.length];
+                    const isSingle = allPlayersData.length === 1;
+
+                    datasets.push({
+                        label: player.name,
+                        data: dataPoints,
+                        borderColor: color.border,
+                        backgroundColor: color.bg,
+                        tension: 0.2,
+                        fill: isSingle,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        spanGaps: true // Connect lines over missing days
+                    });
+                });
+            } 
+            
+            // --- MODE B: RATING INTERVALS (Original Logic) ---
+            else {
+                const globalBucketsSet = new Set();
+                
+                allPlayersData.forEach((playerData, index) => {
+                    if (!playerData || !playerData.data) {
+                        playerBucketsMap[index] = {};
+                        return;
+                    }
+                    const buckets = {}; 
+                    Object.values(playerData.data).forEach(oppData => {
+                        if (!oppData.games) return;
+                        oppData.games.forEach(game => {
+                            if (filterContext.tournamentFilterValue === 'only' && !game.tournament) return;
+                            if (filterContext.tournamentFilterValue === 'exclude' && game.tournament) return;
+                            if (filterContext.isDateRange) {
+                                if (game.date < filterContext.startTs || game.date > filterContext.endTs) return;
+                            } else if (dateCutoff > 0) {
+                                if (game.date < dateCutoff) return;
+                            }
+                            if ((filterContext.rated && game.rated) || (filterContext.unrated && !game.rated)) {
+                                const rating = game.oppRating || 1500;
+                                const bucketKey = Math.floor(rating / 50) * 50; 
+                                globalBucketsSet.add(bucketKey);
+                                if (!buckets[bucketKey]) buckets[bucketKey] = { w: 0, l: 0, d: 0, total: 0, sortKey: bucketKey, totalOppRating: 0 };
+                                if (game.result === 'w') buckets[bucketKey].w++;
+                                else if (game.result === 'l') buckets[bucketKey].l++;
+                                else buckets[bucketKey].d++; 
+                                buckets[bucketKey].total++;
+                                buckets[bucketKey].totalOppRating += rating;
+                            }
+                        });
+                    });
+                    playerBucketsMap[index] = buckets;
+                });
+
+                sortedLabels = Array.from(globalBucketsSet).sort((a, b) => a - b);
+                
+                // Process Datasets (Smoothing Logic)
+                allPlayersData.forEach((player, index) => {
+                    if (!player) return;
+                    let pointObjects = sortedLabels.map((label, labelIdx) => {
+                        const b = playerBucketsMap[index][label];
+                        if (!b) return null; 
+                        
+                        let clusterStats = { ...b };
+                        let smoothingRadius = 0; 
+                        const TARGET_GAMES = 20;
+
+                        if (clusterStats.total < TARGET_GAMES) {
+                            let radius = 1;
+                            let hitEdgeLeft = false, hitEdgeRight = false;
+                            while (clusterStats.total < TARGET_GAMES) {
+                                if (hitEdgeLeft && hitEdgeRight) break;
+                                let foundDataInPass = false;
+                                if (labelIdx - radius >= 0) {
+                                    const leftKey = sortedLabels[labelIdx - radius];
+                                    const leftBucket = playerBucketsMap[index][leftKey];
+                                    if (leftBucket) {
+                                        clusterStats.w += leftBucket.w; clusterStats.l += leftBucket.l; clusterStats.d += leftBucket.d;
+                                        clusterStats.total += leftBucket.total; clusterStats.totalOppRating += leftBucket.totalOppRating;
+                                        foundDataInPass = true;
+                                    }
+                                } else { hitEdgeLeft = true; }
+                                if (labelIdx + radius < sortedLabels.length) {
+                                    const rightKey = sortedLabels[labelIdx + radius];
+                                    const rightBucket = playerBucketsMap[index][rightKey];
+                                    if (rightBucket) {
+                                        clusterStats.w += rightBucket.w; clusterStats.l += rightBucket.l; clusterStats.d += rightBucket.d;
+                                        clusterStats.total += rightBucket.total; clusterStats.totalOppRating += rightBucket.totalOppRating;
+                                        foundDataInPass = true;
+                                    }
+                                } else { hitEdgeRight = true; }
+                                if (foundDataInPass) smoothingRadius = radius;
+                                radius++;
+                            }
+                        }
+                        const clusterPerf = calculateFidePerformance({ wins: clusterStats.w, draws: clusterStats.d, losses: clusterStats.l, games: clusterStats.total, totalOppRating: clusterStats.totalOppRating }).perf;
+                        const localPerf = calculateFidePerformance({ wins: b.w, draws: b.d, losses: b.l, games: b.total, totalOppRating: b.totalOppRating }).perf;
+                        let calcPerf = localPerf;
+                        let allowedDeviation = 100;
+                        let isClampedInitial = false;
+                        if (clusterPerf !== 'N/A' && localPerf !== 'N/A') {
+                            const localGames = b.total;
+                            if (localGames < 4) allowedDeviation = localGames * 25;
+                            else allowedDeviation = 100;
+                            const minAllowed = clusterPerf - allowedDeviation;
+                            const maxAllowed = clusterPerf + allowedDeviation;
+                            if (localPerf > maxAllowed) { calcPerf = maxAllowed; isClampedInitial = true; } 
+                            else if (localPerf < minAllowed) { calcPerf = minAllowed; isClampedInitial = true; }
+                        } else if (localPerf === 'N/A' && clusterPerf !== 'N/A') {
+                            calcPerf = clusterPerf;
+                        }
+                        return {
+                            val: calcPerf, games: b.total,
+                            meta: { originalPerf: localPerf, clusterPerf: clusterPerf, allowedDeviation: allowedDeviation, smoothedTotal: clusterStats.total, isClampedInitial: isClampedInitial, neighborAdjustment: 0 }
+                        };
+                    });
+
+                    // Neighbor Constraint Solver
+                    let changed = true;
+                    let iterations = 0;
+                    while(changed && iterations < 20) {
+                        changed = false;
+                        for (let i = 0; i < pointObjects.length - 1; i++) {
+                            let p1 = pointObjects[i], p2 = pointObjects[i+1];
+                            if (!p1 || !p2 || p1.val === 'N/A' || p2.val === 'N/A') continue;
+                            let diff = p2.val - p1.val;
+                            const MAX_DIFF = 100;
+                            if (Math.abs(diff) > MAX_DIFF) {
+                                const correctionNeeded = Math.abs(diff) - MAX_DIFF;
+                                const sign = Math.sign(diff); 
+                                const w1 = p1.games + 0.1, w2 = p2.games + 0.1;
+                                const totalWeight = w1 + w2;
+                                p1.val += (correctionNeeded * (w2 / totalWeight)) * sign; 
+                                p2.val += (correctionNeeded * (w1 / totalWeight)) * -sign;
+                                changed = true;
+                            }
+                        }
+                        iterations++;
+                    }
+
+                    const finalData = pointObjects.map((obj, idx) => {
+                        if (!obj || obj.val === 'N/A') return null;
+                        const finalVal = Math.round(obj.val); 
+                        const label = sortedLabels[idx];
+                        playerBucketsMap[index][label].meta = obj.meta;
+                        return finalVal;
+                    });
+
+                    const colors = [
+                        { border: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
+                        { border: '#f97316', bg: 'rgba(249, 115, 22, 0.15)' },
+                        { border: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' },
+                        { border: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' }
+                    ];
+                    const color = colors[index % colors.length];
+                    const isSingle = allPlayersData.length === 1;
+
+                    datasets.push({ 
+                        label: player.name, data: finalData, borderColor: color.border, backgroundColor: color.bg, tension: 0.3, fill: isSingle, pointRadius: 4, pointHoverRadius: 6, spanGaps: true 
+                    });
+                });
+            }
+
+            // --- RENDER CHART ---
+            if (ratingChartInstance) ratingChartInstance.destroy();
+            
+            // Custom Tooltip Positioner
+            Chart.Tooltip.positioners.fixedTop = function(elements, eventPosition) {
+                if (!elements || !elements.length) return false;
+                return { x: elements[0].element.x, y: this.chart.chartArea.top };
+            };
+
+            const ctx = chartCanvas.getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const textColor = isDark ? '#e5e7eb' : '#374151';
+
+            const xTitle = isRatingMode ? 'Opponent Rating Range' : 'Date';
+            const chartTitle = isRatingMode 
+                ? (allPlayersData.length > 1 ? `Performance Comparison by Rating` : `Performance by Rating Interval (${allPlayersData[0].name})`)
+                : (allPlayersData.length > 1 ? `Daily Performance History` : `Daily Performance History (${allPlayersData[0].name})`);
+
+            ratingChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedLabels.map(l => `${l}`),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 40, bottom: 0, left: 0, right: 0 } },
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, maxTicksLimit: 12 }, // Limit ticks for dates
+                            title: { display: true, text: xTitle, color: textColor }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor },
+                            title: { display: true, text: 'Performance Rating', color: textColor }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor }, display: true, position: 'bottom' },
+                        title: { display: true, text: chartTitle, color: textColor, font: { size: 16 }, padding: { bottom: 10 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            position: 'average', 
+                            callbacks: {
+                                label: (tooltipItem) => `${tooltipItem.dataset.label}: ${tooltipItem.raw}`,
+                                footer: (tooltipItems) => {
+                                    const item = tooltipItems[0];
+                                    const datasetIndex = item.datasetIndex;
+                                    const index = item.dataIndex;
+                                    const bucketKey = sortedLabels[index];
+                                    if(!playerBucketsMap[datasetIndex]) return '';
+                                    const b = playerBucketsMap[datasetIndex][bucketKey];
+                                    if (!b) return '';
+                                    const winRate = ((b.w / b.total) * 100).toFixed(1);
+                                    return `Games: ${b.total} | Win Rate: ${winRate}%\n(W:${b.w} L:${b.l} D:${b.d})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function getPlayerData(username, perfType, statusElement, forceUpdate = false, maxGames = '300', skipNetwork = false) {
             const cacheKey = `lichess_games_${username.toLowerCase()}_${perfType}`;
             let cachedData = null;
             
             try {
                 cachedData = await dbHelper.getPlayerData(cacheKey);
             } catch (e) { }
+
+            // NEW: Skip network logic
+            if (skipNetwork) {
+                if (cachedData) {
+                    statusElement.textContent = `Loaded ${username} from local cache.`;
+                    return {
+                        opponentsMap: cachedData.opponentsMap,
+                        latestRating: cachedData.latestRating,
+                        oldestGameDate: cachedData.oldestGameDate || 0
+                    };
+                }
+                statusElement.textContent = `No cache found for ${username}.`;
+                return { opponentsMap: {}, latestRating: null, oldestGameDate: 0 };
+            }
 
             const requestedMax = parseInt(maxGames, 10) || 10000;
             
@@ -1464,6 +2100,9 @@
                         totals[0].games += combinedRecord.gameCount;
                         totals[0].totalOppRating += combinedRecord.totalOppRating;
                         
+                        // NEW: Add rating
+                        opponentData.avgRating = combinedRecord.gameCount > 0 ? Math.round(combinedRecord.totalOppRating / combinedRecord.gameCount) : 0;
+                        
                         common.push(opponentData);
                     }
                 }
@@ -1567,8 +2206,11 @@
                             nameLower: opponentLower, 
                             records: new Array(playersData.length).fill(null).map(() => ({ w: 0, l: 0, d: 0, score: 0 })),
                             totalGames: 0,
-                            lastPlayed: maxLastPlayed
+                            lastPlayed: maxLastPlayed,
+                            avgRating: 0 // Initialize
                         };
+
+                        let sumOppRating = 0; // NEW: Track local sum
 
                         // Aggregation
                         for (let i = 0; i < playersData.length; i++) {
@@ -1577,6 +2219,8 @@
                                 opponentData.records[i] = { w: rec.w, l: rec.l, d: rec.d, score: rec.w - rec.l };
                                 opponentData.totalGames += rec.gameCount;
 
+                                sumOppRating += rec.totalOppRating; // NEW: Add to local sum
+
                                 totals[i].wins += rec.w;
                                 totals[i].losses += rec.l;
                                 totals[i].draws += rec.d;
@@ -1584,6 +2228,10 @@
                                 totals[i].totalOppRating += rec.totalOppRating;
                             }
                         }
+                        
+                        // NEW: Calculate Average
+                        opponentData.avgRating = opponentData.totalGames > 0 ? Math.round(sumOppRating / opponentData.totalGames) : 0;
+
                         common.push(opponentData);
                     }
                     
@@ -1615,13 +2263,15 @@
                                         playerRecords: new Array(playersData.length).fill(null),
                                         playCount: 0,
                                         totalGames: 0,
-                                        lastPlayed: 0
+                                        lastPlayed: 0,
+                                        totalOppRating: 0 // NEW: Init rating
                                     });
                                 }
                                 const opp = allOpponents.get(opponentLower);
                                 opp.playerRecords[playerIndex] = { w: filteredRecord.w, l: filteredRecord.l, d: filteredRecord.d, score: filteredRecord.w - filteredRecord.l };
                                 opp.playCount++;
                                 opp.totalGames += filteredRecord.gameCount;
+                                opp.totalOppRating += filteredRecord.totalOppRating; // NEW: Accumulate rating
                                 if (filteredRecord.lastPlayed > opp.lastPlayed) opp.lastPlayed = filteredRecord.lastPlayed;
 
                                 totals[playerIndex].wins += filteredRecord.w;
@@ -1647,7 +2297,8 @@
                                 nameLower: opponentLower,
                                 records: oppData.playerRecords,
                                 totalGames: oppData.totalGames,
-                                lastPlayed: oppData.lastPlayed
+                                lastPlayed: oppData.lastPlayed,
+                                avgRating: oppData.totalGames > 0 ? Math.round(oppData.totalOppRating / oppData.totalGames) : 0 // NEW: Calc Avg
                             });
                         }
                     }
@@ -1771,6 +2422,10 @@
             }
             
             let filterParts = [];
+            const gameType = gameTypeSelect.value;
+            const gameTypeDisplay = gameType.charAt(0).toUpperCase() + gameType.slice(1);
+            filterParts.push(gameTypeDisplay);
+
             let shortDateText = rawDateFilterText;
             if (rawDateFilterText === 'All') shortDateText = 'All';
             else if (rawDateFilterText === 'Custom (All)') { shortDateText = 'All-time'; rawDateFilterText = 'All'; }
@@ -1941,6 +2596,8 @@
                 <option value="name-asc">Opponent Name (A-Z)</option>
                 <option value="total-games-desc">Most Games Played</option>
                 <option value="last-played-desc" selected>Most Recently Played</option>
+                <option value="rating-desc">Highest Rated (Avg)</option>
+                <option value="rating-asc">Lowest Rated (Avg)</option>
             `;
             if (isSinglePlayerMode) {
                 sortOptions.innerHTML += `
@@ -1974,6 +2631,12 @@
                 currentCommonOpponents.sort((a, b) => b.totalGames - a.totalGames);
             } else if (sortBy === 'last-played-desc') {
                 currentCommonOpponents.sort((a, b) => b.lastPlayed - a.lastPlayed);
+            } else if (sortBy === 'rating-desc') {
+                // NEW: Sort by High Rating
+                currentCommonOpponents.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+            } else if (sortBy === 'rating-asc') {
+                // NEW: Sort by Low Rating
+                currentCommonOpponents.sort((a, b) => (a.avgRating || 0) - (b.avgRating || 0));
             } else if (sortBy === 'p0-losses-desc') {
                 currentCommonOpponents.sort((a, b) => b.records[0].l - a.records[0].l);
             } else {
@@ -2047,6 +2710,15 @@
             const isSinglePlayerMode = currentPlayersData.length === 1 || !currentPlayersData[1];
             const p1Name = activePlayerNames[0];
             const dateQueryPart = getDateSearchQuery();
+            const perfIdMap = {
+                'bullet': 1,
+                'blitz': 2,
+                'rapid': 6,
+                'classical': 3,
+                'correspondence': 4,
+                'chess960': 11
+            };
+            const perfId = perfIdMap[currentGameType] || 2;
 
             if (!isSinglePlayerMode && currentHeadToHeadData.length > 0) {
                 currentHeadToHeadData.forEach(opponent => {
@@ -2063,7 +2735,7 @@
                        vsPlayerName = activePlayerNames[1] || p1Name;
                     }
                     
-                    const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.b=${opponent.name}${dateQueryPart}`;
+                    const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.a=${vsPlayerName}&players.b=${opponent.name}&perf=${perfId}${dateQueryPart}&sort.field=d&sort.order=desc`;
                     const vsLabel = `VS <span class='text-[9px] uppercase'>(${vsPlayerName})</span>`;
                     
                     const vsButtonHTML = `<a href="${vsLink}" target="_blank" class="ml-2 px-2 py-0.5 rounded bg-gray-200 text-blue-600 text-xs border border-gray-300 hover:bg-gray-300 hover:text-blue-700 dark:bg-gray-700 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white transition-colors inline-flex items-center gap-1" title="View games: ${vsPlayerName} vs ${opponent.name}">${vsLabel}</a>`;
@@ -2098,7 +2770,7 @@
                     if(r && (r.w + r.l + r.d) > 0) { vsLinkPlayerIndex = i; break; }
                 }
                 const vsPlayerName = activePlayerNames[vsLinkPlayerIndex];
-                const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.b=${opponent.name}${dateQueryPart}`;
+                const vsLink = `https://lichess.org/@/${vsPlayerName}/search?players.a=${vsPlayerName}&players.b=${opponent.name}&perf=${perfId}${dateQueryPart}&sort.field=d&sort.order=desc`;
                 const vsLabel = isSinglePlayerMode ? "VS" : `VS <span class='text-[9px] uppercase'>(${vsPlayerName})</span>`;
                 const vsButtonHTML = `<a href="${vsLink}" target="_blank" class="ml-2 px-2 py-0.5 rounded bg-gray-200 text-blue-600 text-xs border border-gray-300 hover:bg-gray-300 hover:text-blue-700 dark:bg-gray-700 dark:text-blue-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white transition-colors inline-flex items-center gap-1" title="View games: ${vsPlayerName} vs ${opponent.name}">${vsLabel}</a>`;
                 const pgnButtonHTML = `<button onclick="exportSingleOpponentPGN('${safeOpponentName}')" class="ml-1 p-1 text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400" title="Export PGN for games vs ${opponent.name}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`;
@@ -2324,7 +2996,6 @@
             window.URL.revokeObjectURL(url);
         }
 
-        // Missing cache handler function (referenced in renderTable)
         async function handleCacheOpponent(opponentName, btnElement, progressElementId) {
              const gameType = gameTypeSelect.value;
              const progressEl = document.getElementById(progressElementId);
@@ -2340,8 +3011,6 @@
                  btnElement.innerHTML = ICON_SUCCESS;
                  if(progressEl) progressEl.textContent = "Done";
                  
-                 // Refresh logic implies we might want to reload everything, but that's heavy.
-                 // Just let the user know it's cached. They can now add this player to the main slots.
                  await populateCachedPlayersDatalist();
                  
              } catch (e) {
